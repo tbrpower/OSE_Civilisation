@@ -32,10 +32,11 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
                 false //Kick on ban
         );
         event.getEntity().kick(MiniMessage.miniMessage().deserialize(""" 
-                <red>Vous avez été tué !</red>
-                Vous ne pouvez plus respawn...
+                <red><bold>Vous avez été tué !</bold></red>
                 
-                Cependant, vous êtes mort au jour 1, vous réapparaitrez donc demain.
+                <orange><italic>Vous ne pouvez plus respawn...</italic></orange>
+                
+                <blue>Cependant ! Vous êtes mort au jour 1, vous réapparaitrez donc demain.</blue>
                 
                 
                 """))

@@ -34,10 +34,11 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         event.getEntity().kick(MiniMessage.miniMessage().deserialize(""" 
                 <red><bold>Vous avez été tué !</bold></red>
                 
-                <orange><italic>Vous ne pouvez plus respawn...</italic></orange>
+                <#900000><italic>Vous ne pouvez plus respawn...</italic></#900000>
                 
                 
-                <blue>CEPENDANT !
+                <blue><bold>CEPENDANT !</bold>
+                
                 Vous êtes mort au jour 1, vous réapparaitrez donc demain.</blue>
                 
                 

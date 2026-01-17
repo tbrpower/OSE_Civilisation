@@ -2,6 +2,7 @@ package fr.tbrpower.civilisationdeatheffects;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,15 +23,23 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         String playerName = event.getEntity().getName();
-        //String playerAdress = event.getPlayer().getAddress().getAddress().getHostAddress();
         if (event.getEntity().getAddress() == null) return ;
 
 
         event.getEntity().banIp("§dVous êtes mort§r, merci d'avoir joué !", //Ban message
                 (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
-                "day1 ban", //Source of Ban (no idea what it is for)
+                "day1 ban", //Source of Ban
                 false //Kick on ban
         );
+
+        Bukkit.getBanList(BanList.Type.NAME).addBan(
+                playerName, //Player name
+                "§dVous êtes mort§r, merci d'avoir joué !", //Ban message
+                null, //Ban duration
+                "day1 ban" //Source of ban
+        );
+
+
         event.getEntity().kick(MiniMessage.miniMessage().deserialize(""" 
                 <red><bold>Vous avez été tué !</bold></red>
                 
@@ -42,9 +51,8 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
                 Vous êtes mort au jour 1, vous réapparaitrez donc demain.</#4573FF>
                 
                 
-                """))
-        ;
-
+                """
+        ));
 
 
         Bukkit.getServer().broadcast(Component.text("§cJoueur§r" + playerName));

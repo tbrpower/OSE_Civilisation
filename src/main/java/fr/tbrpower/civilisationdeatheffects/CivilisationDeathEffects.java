@@ -78,9 +78,9 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
 
         if (ipBanList.isBanned(ip)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1.toString());
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1);
         } else if (profileBanList.isBanned(profile)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1.toString());
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1);
         }
     }
 }

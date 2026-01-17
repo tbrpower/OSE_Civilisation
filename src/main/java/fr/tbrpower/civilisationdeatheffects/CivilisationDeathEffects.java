@@ -36,7 +36,9 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
                 
                 <orange><italic>Vous ne pouvez plus respawn...</italic></orange>
                 
-                <blue>Cependant ! Vous êtes mort au jour 1, vous réapparaitrez donc demain.</blue>
+                
+                <blue>CEPENDANT !
+                Vous êtes mort au jour 1, vous réapparaitrez donc demain.</blue>
                 
                 
                 """))

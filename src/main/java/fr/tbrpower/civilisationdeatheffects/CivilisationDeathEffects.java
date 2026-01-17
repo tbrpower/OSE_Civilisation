@@ -1,18 +1,44 @@
 package fr.tbrpower.civilisationdeatheffects;
 
+import java.net.InetAddress;
+
+import com.destroystokyo.paper.profile.PlayerProfile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.event.EventHandler;
+
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
+import java.util.UUID;
+
+
+
 
 public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
+
+    MiniMessage messageday1 = (MiniMessage) MiniMessage.miniMessage().deserialize("""
+            <red><bold>Vous avez été tué !</bold></red>
+               \s
+            <#900000><italic>Vous ne pouvez donc plus respawn...</italic></#900000>
+               \s
+               \s
+            <#4573FF><bold>CEPENDANT !</bold>
+               \s
+            Vous êtes mort au jour 1, vous réapparaitrez donc demain.</#4573FF>
+               \s
+               \s
+           \s""");
+
 
     @Override
     public void onEnable() {
@@ -23,7 +49,7 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         String playerName = event.getEntity().getName();
-        if (event.getEntity().getAddress() == null) return ;
+        if (event.getEntity().getAddress() == null) return;
 
 
         event.getEntity().banIp("§dVous êtes mort§r, merci d'avoir joué !", //Ban message
@@ -32,29 +58,29 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
                 false //Kick on ban
         );
 
-        Bukkit.getBanList(BanList.Type.NAME).addBan(
-                playerName, //Player name
-                "§dVous êtes mort§r, merci d'avoir joué !", //Ban message
-                null, //Ban duration
-                "day1 ban" //Source of ban
+        event.getEntity().ban("§dVous êtes mort§r, merci d'avoir joué !",
+                (Duration) null,
+                "day1 ban",
+                false
         );
 
 
-        event.getEntity().kick(MiniMessage.miniMessage().deserialize(""" 
-                <red><bold>Vous avez été tué !</bold></red>
-                
-                <#900000><italic>Vous ne pouvez donc plus respawn...</italic></#900000>
-                
-                
-                <#4573FF><bold>CEPENDANT !</bold>
-                
-                Vous êtes mort au jour 1, vous réapparaitrez donc demain.</#4573FF>
-                
-                
-                """
-        ));
+        event.getEntity().kick((Component) messageday1);
 
+    }
 
-        Bukkit.getServer().broadcast(Component.text("§cJoueur§r" + playerName));
+    // BAN CHECK
+    @EventHandler
+    public void onPreLogin(AsyncPlayerPreLoginEvent event) {
+        String ip = event.getAddress().getHostAddress();
+        PlayerProfile profile = event.getPlayerProfile();
+        BanList ipBanList = Bukkit.getBanList(BanList.Type.IP);
+        ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
+
+        if (ipBanList.isBanned(ip)) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1.toString());
+        } else if (profileBanList.isBanned(profile)) {
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1.toString());
+        }
     }
 }

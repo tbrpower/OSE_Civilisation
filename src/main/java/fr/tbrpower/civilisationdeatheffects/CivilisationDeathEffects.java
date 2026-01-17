@@ -52,13 +52,13 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         if (event.getEntity().getAddress() == null) return;
 
 
-        event.getEntity().banIp("§dVous êtes mort§r, merci d'avoir joué !", //Ban message
+        event.getEntity().banIp("day1 death", //Ban message
                 (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
                 "day1 ban", //Source of Ban
                 false //Kick on ban
         );
 
-        event.getEntity().ban("§dVous êtes mort§r, merci d'avoir joué !",
+        event.getEntity().ban("day1 death",
                 (Duration) null,
                 "day1 ban",
                 false

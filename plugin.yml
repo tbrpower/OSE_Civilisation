@@ -1,0 +1,6 @@
+name: CivilisationDeathEffects
+version: 0.1
+main: fr.tbrpower.civilisationdeatheffects.CivilisationDeathEffects
+api-version: 1.21
+author: TbrPower
+description: Brr Brr le patapim du joueur

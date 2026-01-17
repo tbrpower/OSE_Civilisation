@@ -16,7 +16,7 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
-        getLogger().info("§9[CivilisationDeathEffects]§r Plugin civilisation activé !");
+        getLogger().info("&9[CivilisationDeathEffects]&r Plugin civilisation activé !");
     }
 
     @EventHandler

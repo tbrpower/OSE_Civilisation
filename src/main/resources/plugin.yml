@@ -4,3 +4,14 @@ main: fr.tbrpower.civilisationdeatheffects.CivilisationDeathEffects
 api-version: 1.21
 author: TbrPower
 description: Brr Brr le patapim du joueur
+
+commands:
+  civilisationdeatheffects :
+    description : Main plugin command
+    usage : /civ <action>
+    permission : civilisationdeatheffects.admin
+
+permissions:
+  civilisation.bypass:
+    description: ignores death check
+    default: false

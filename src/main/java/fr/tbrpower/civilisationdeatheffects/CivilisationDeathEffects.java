@@ -1,4 +1,5 @@
 package fr.tbrpower.civilisationdeatheffects;
+import fr.tbrpower.civilisationdeatheffects.commands.CivCommands;
 
 import java.net.InetAddress;
 
@@ -51,22 +52,24 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         String playerName = event.getEntity().getName();
         if (event.getEntity().getAddress() == null) return;
 
-
-        event.getEntity().banIp("day1 death", //Ban message
-                (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
-                "day1 ban", //Source of Ban
-                false //Kick on ban
-        );
-
-        event.getEntity().ban("day1 death",
-                (Duration) null,
-                "day1 ban",
-                false
-        );
+        if (! event.getPlayer().hasPermission("civilisation.bypass")) {
 
 
-        event.getEntity().kick((Component) messageday1);
+            event.getEntity().banIp("day1 death", //Ban message
+                    (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
+                    "day1 ban", //Source of Ban
+                    false //Kick on ban
+            );
 
+            event.getEntity().ban("day1 death",
+                    (Duration) null,
+                    "day1 ban",
+                    false
+            );
+
+
+            event.getEntity().kick((Component) messageday1);
+        }
     }
 
     // BAN CHECK
@@ -83,4 +86,10 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1);
         }
     }
+
+
+    //Civilisation command
+    /*CivilisationCommand cmd = CivilisationCommand();
+    getCommand("civ").setExecutor(cmd);
+    getCommand("civ").setTabCompleter(cmd);*/
 }

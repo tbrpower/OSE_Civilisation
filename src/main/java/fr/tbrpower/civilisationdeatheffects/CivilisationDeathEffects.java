@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.time.Duration;
 import java.time.Instant;
 
 public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
@@ -22,7 +23,12 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         String playerName = event.getEntity().getName();
         //String playerAdress = event.getPlayer().getAddress().getAddress().getHostAddress();
         if (event.getEntity().getAddress() == null) return ;
-        event.getEntity().banIp("Vous êtes mort", Instant.now(), "Server", true);
+
+        event.getEntity().banIp("Vous êtes mort", //Ban message
+                Instant.now().plus(Duration.ofSeconds(60)), //Ban Duration
+                "Server", //Source of Ban (no idea what it is for)
+                true //true = ban, false = unban
+        );
 
 
         Bukkit.getServer().broadcast(Component.text("§cJoueur§r" + playerName));

@@ -26,7 +26,7 @@ import java.util.UUID;
 
 public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
 
-    MiniMessage messageday1 = (MiniMessage) MiniMessage.miniMessage().deserialize("""
+    Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
             <red><bold>Vous avez été tué !</bold></red>
                \s
             <#900000><italic>Vous ne pouvez donc plus respawn...</italic></#900000>

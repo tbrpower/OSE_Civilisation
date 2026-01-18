@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Array;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,7 +114,13 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             }
         }
 
-        if (revivedPlayers.isEmpty() ) {
+        for (BanEntry<? super InetAddress> entry : ipBanList.getEntries()) {
+            if (! (entry.getSource().isEmpty()) && entry.getSource().equals("nonPermDeath")) {
+                ipBanList.pardon(entry.getTarget());
+            }
+        }
+
+            if (revivedPlayers.isEmpty() ) {
             sender.sendMessage("§cNo revivable dead players !§r");
         } else if (revivedPlayers.size() == 1) {
             sender.sendMessage("§aSuccesfully revived 1 player !§r");

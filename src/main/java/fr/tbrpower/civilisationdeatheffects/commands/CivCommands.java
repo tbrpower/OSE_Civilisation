@@ -31,7 +31,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("Invalid syntax. Correct use : /civ <pardonall|list|toggle>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|list|toggle>");
             return true;
         }
 
@@ -40,7 +40,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "pardonall" -> unbanDeadPlayers(sender);
             case "list" -> dumpDeadList(sender);
             case "toggle" -> toggleTempDeath(sender);
-            default -> sender.sendMessage("Unknown subcommand.");
+            case "info" -> sender.sendMessage("§fTemporary death is currently : "+ plugin.getConfig().getBoolean("temp-death"));
+            default -> sender.sendMessage("§cUnknown subcommand.");
         }
 
 
@@ -50,7 +51,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle")
+            return List.of("pardonall", "list", "toggle", "info")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();

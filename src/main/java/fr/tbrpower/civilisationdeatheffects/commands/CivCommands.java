@@ -73,10 +73,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             }
 
             if (deadPlayers.isEmpty()) {
-                sender.sendMessage("§6§lAucun joueur mort temporairement");
+                sender.sendMessage("§6§lNo temporarily banned players :( !");
             } else {
                 StringBuilder sb = new StringBuilder();
-                sb.append("<gold><bold>Liste des joueurs bannis temporairement ("
+                sb.append("<gold><bold>List of temporarily banned players "
                         + deadPlayers.size()
                         +"): </bold></gold>");
 

@@ -66,13 +66,15 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
             for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
                 PlayerProfile target = (PlayerProfile) entry.getBanTarget();
-                if (entry.getSource().isEmpty()  && entry.getSource().equals("nonPermDeath")) {
+                if (! (entry.getSource().isEmpty())  && entry.getSource().equals("nonPermDeath")) {
                     deadPlayers.add(target.getName());
                 }
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("<gold><bold>Liste des joueurs bannis de façon non permanente ("+ deadPlayers.toArray().length +"): </gold></bold>");
+            sb.append("<gold><bold>Liste des joueurs bannis de façon non permanente ("
+                    + deadPlayers.size()
+                    +"): </bold></gold>");
 
             for (String playerName : deadPlayers) {
                 sb.append("<darkgreen> - " + playerName + "</darkgreen>");

@@ -28,14 +28,14 @@ import java.util.UUID;
 public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
 
     Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
-            <red><bold>Vous avez été tué !</bold></red>
+           <red><bold>Vous avez été tué !</bold></red>
                \s
-            <#900000><italic>Vous ne pouvez donc plus respawn...</italic></#900000>
+           <#900000><italic>Vous ne pouvez donc plus respawn...</italic></#900000>
                \s
                \s
-            <#4573FF><bold>CEPENDANT !</bold>
+           <#4573FF><bold>CEPENDANT !</bold>
                \s
-            Vous êtes mort au jour 1, vous réapparaitrez donc demain.</#4573FF>
+           Vous êtes mort au jour 1, vous réapparaitrez donc demain.</#4573FF>
                \s
                \s
            \s""");

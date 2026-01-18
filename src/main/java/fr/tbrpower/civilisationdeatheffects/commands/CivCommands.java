@@ -72,8 +72,21 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 }
             }
 
+            if (deadPlayers.isEmpty()) {
+                sender.sendMessage("§6§lAucun joueur mort temporairement");
+            } else {
+                StringBuilder sb = new StringBuilder();
+                sb.append("<gold><bold>Liste des joueurs bannis temporairement ("
+                        + deadPlayers.size()
+                        +"): </bold></gold>");
+
+                for (String playerName : deadPlayers) {
+                    sb.append("<#013220>\n - " + playerName + "</#013220>");
+                }
+            }
+
             StringBuilder sb = new StringBuilder();
-            sb.append("<gold><bold>Liste des joueurs bannis de façon non permanente ("
+            sb.append("<gold><bold>Liste des joueurs bannis temporairement ("
                     + deadPlayers.size()
                     +"): </bold></gold>");
 

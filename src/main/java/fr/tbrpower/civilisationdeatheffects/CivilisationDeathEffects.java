@@ -57,7 +57,7 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     public void onEnable() {
         saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
-        getLogger().info("&9[CivilisationDeathEffects]&r Plugin civilisation activé !");
+        getLogger().info("§9[CivilisationDeathEffects]§r Plugin civilisation activé !");
 
         CivCommands cmd = new CivCommands(this);
         getCommand("civ").setExecutor(cmd);
@@ -68,11 +68,12 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         boolean tempDeath = getConfig().getBoolean("temp-death");
         String deathSource;
+        Component message;
 
         String playerName = event.getEntity().getName();
         if (event.getEntity().getAddress() == null) return;
 
-        if (tempDeath) {deathSource = "nonPermDeath";} else {deathSource = "permDeath";}
+        if (tempDeath) {deathSource = "nonPermDeath"; message = messageday1;} else {deathSource = "permDeath"; message = messageNormal;}
 
         if (! event.getPlayer().hasPermission("civde.bypass")) {
 
@@ -90,7 +91,8 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
             );
 
 
-            event.getEntity().kick((Component) messageday1);
+
+            event.getEntity().kick((Component) message);
         }
     }
 
@@ -101,11 +103,16 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         PlayerProfile profile = event.getPlayerProfile();
         BanList ipBanList = Bukkit.getBanList(BanList.Type.IP);
         ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
+        BanEntry ipentry = ipBanList.getBanEntry(ip);
+        Component message = messageNormal;
 
+        if (ipentry != null) {
+            if (ipentry.getSource().equals("nonPermDeath")) {message = messageday1;} else if (ipentry.getSource().equals("permDeath")) { message = messageNormal;}
+        }
         if (ipBanList.isBanned(ip)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1);
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
         } else if (profileBanList.isBanned(profile)) {
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, messageday1);
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
         }
     }
 

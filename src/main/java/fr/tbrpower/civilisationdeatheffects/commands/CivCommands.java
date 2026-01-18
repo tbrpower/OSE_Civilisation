@@ -77,7 +77,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                     +"): </bold></gold>");
 
             for (String playerName : deadPlayers) {
-                sb.append("<darkgreen> - " + playerName + "</darkgreen>");
+                sb.append("#013220>\n - " + playerName + "</#013220>");
             }
 
 

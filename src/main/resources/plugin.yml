@@ -6,7 +6,7 @@ author: TbrPower
 description: Brr Brr le patapim du joueur
 
 commands:
-  civilisationdeatheffects :
+  civ :
     description : Main plugin command
     usage : /civ <action>
     permission : civcde.admin

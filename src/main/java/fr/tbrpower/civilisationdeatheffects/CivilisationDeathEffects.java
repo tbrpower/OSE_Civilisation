@@ -45,6 +45,10 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("&9[CivilisationDeathEffects]&r Plugin civilisation activé !");
+
+        CivCommands cmd = new CivCommands();
+        getCommand("civ").setExecutor(cmd);
+        getCommand("civ").setTabCompleter(cmd);
     }
 
     @EventHandler
@@ -88,8 +92,4 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
     }
 
 
-    //Civilisation command
-    /*CivilisationCommand cmd = CivilisationCommand();
-    getCommand("civ").setExecutor(cmd);
-    getCommand("civ").setTabCompleter(cmd);*/
 }

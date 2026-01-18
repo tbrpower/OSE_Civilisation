@@ -40,9 +40,22 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
                \s
            \s""");
 
+    Component messageNormal = (Component) MiniMessage.miniMessage().deserialize("""
+           <red><bold>Vous avez été tué !</bold></red>
+               \s
+           <#900000><italic>Vous ne pouvez donc plus respawn.</italic></#900000>
+               \s
+               \s
+           <#4573FF><bold>Merci d'avoir joué !</bold>
+               \s
+           Restez sur le discord, de prochains évènements seront annoncés...</#4573FF>
+               \s
+               \s
+           \s""");
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("&9[CivilisationDeathEffects]&r Plugin civilisation activé !");
 

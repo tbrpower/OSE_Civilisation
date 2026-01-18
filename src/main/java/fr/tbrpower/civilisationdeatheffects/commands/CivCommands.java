@@ -67,7 +67,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
             for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
                 PlayerProfile target = (PlayerProfile) entry.getBanTarget();
-                if (! (entry.getSource().isEmpty())  && entry.getSource().equals("nonPermDeath")) {
+                if (entry.getSource().equals("nonPermDeath")) {
                     deadPlayers.add(target.getName());
                 }
             }

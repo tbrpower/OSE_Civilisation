@@ -40,7 +40,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "pardonall" -> unbanDeadPlayers(sender);
             case "list" -> dumpDeadList(sender);
             case "toggle" -> toggleTempDeath(sender);
-            case "info" -> sender.sendMessage("§fTemporary death is currently : "+ plugin.getConfig().getBoolean("temp-death"));
+            case "info" -> sender.sendMessage("§fTemporary death is currently set to: "+ plugin.getConfig().getBoolean("temp-death"));
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
 
@@ -90,7 +90,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                         +"): </bold></gold>");
 
                 for (String playerName : deadPlayers) {
-                    sb.append("<#026440 >\n - " + playerName + "</#026440 >");
+                    sb.append("<#026440>\n - " + playerName + "</#026440>");
                     sender.sendMessage(MiniMessage.miniMessage().deserialize(sb.toString()
                     ));
                 }
@@ -134,6 +134,6 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     public void toggleTempDeath(CommandSender sender) {
         plugin.getConfig().set("temp-death", ! (plugin.getConfig().getBoolean("temp-death")));
         plugin.saveConfig();
-        sender.sendMessage("Temporary death is now : "+ plugin.getConfig().getBoolean("temp-death"));
+        sender.sendMessage("Temporary death is now set to : "+ plugin.getConfig().getBoolean("temp-death"));
     }
 }

@@ -90,7 +90,11 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
                     false
             );
 
-
+            event.setKeepInventory(false);
+            event.getEntity().getInventory().clear();
+            event.getEntity().getInventory().setArmorContents(null);
+            event.getEntity().getInventory().setArmorContents(null);
+            event.getEntity().getInventory().setItemInOffHand(null);
 
             event.getEntity().kick((Component) message);
         }

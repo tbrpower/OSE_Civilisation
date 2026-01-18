@@ -59,28 +59,33 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("&9[CivilisationDeathEffects]&r Plugin civilisation activé !");
 
-        CivCommands cmd = new CivCommands();
+        CivCommands cmd = new CivCommands(this);
         getCommand("civ").setExecutor(cmd);
         getCommand("civ").setTabCompleter(cmd);
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
+        boolean tempDeath = getConfig().getBoolean("temp-death");
+        String deathSource;
+
         String playerName = event.getEntity().getName();
         if (event.getEntity().getAddress() == null) return;
+
+        if (tempDeath) {deathSource = "nonPermDeath";} else {deathSource = "permDeath";}
 
         if (! event.getPlayer().hasPermission("civde.bypass")) {
 
 
-            event.getEntity().banIp("nonPermDeath", //Ban message
+            event.getEntity().banIp(deathSource, //Ban message
                     (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
-                    "nonPermDeath", //Source of Ban
+                    deathSource, //Source of Ban
                     false //Kick on ban
             );
 
-            event.getEntity().ban("nonPermDeath",
+            event.getEntity().ban(deathSource,
                     (Duration) null,
-                    "nonPermDeath",
+                    deathSource,
                     false
             );
 

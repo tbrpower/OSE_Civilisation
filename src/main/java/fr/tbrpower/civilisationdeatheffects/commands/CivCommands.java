@@ -1,5 +1,6 @@
 package fr.tbrpower.civilisationdeatheffects.commands;
 
+import fr.tbrpower.civilisationdeatheffects.CivilisationDeathEffects;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import org.apache.maven.model.Profile;
@@ -21,10 +22,15 @@ import java.util.List;
 
 public class CivCommands implements CommandExecutor, TabCompleter {
 
+
+    private final CivilisationDeathEffects plugin;
+    public CivCommands(CivilisationDeathEffects plugin) { this.plugin = plugin;}
+
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("Invalid syntax. Correct use : /civ <pardonall|list>");
+            sender.sendMessage("Invalid syntax. Correct use : /civ <pardonall|list|toggle>");
             return true;
         }
 
@@ -32,6 +38,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "pardonall" -> unbanDeadPlayers(sender);
             case "list" -> dumpDeadList(sender);
+            case "toggle" -> toggleTempDeath(sender);
             default -> sender.sendMessage("Unknown subcommand.");
         }
 
@@ -42,7 +49,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list")
+            return List.of("pardonall", "list", "toggle")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -114,5 +121,11 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             sender.sendMessage("§aSuccesfully revived "+ revivedPlayers.size() +" players !§r");
         }
 
+    }
+
+    public void toggleTempDeath(CommandSender sender) {
+        plugin.getConfig().set("temp-death", ! (plugin.getConfig().getBoolean("temp-death")));
+        plugin.saveConfig();
+        sender.sendMessage("Temporary death is now : "+ plugin.getConfig().getBoolean("temp-death"));
     }
 }

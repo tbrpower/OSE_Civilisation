@@ -1,0 +1,3 @@
+# If true, player will be able to be revived with the /civ pardonall command
+# If false, player will be banned forever.
+temp-death: false

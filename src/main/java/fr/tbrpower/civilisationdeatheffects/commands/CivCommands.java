@@ -103,9 +103,11 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
 
         if (revivedPlayers.isEmpty() ) {
-            sender.sendMessage("&cNo revivable dead players !&r");
+            sender.sendMessage("§cNo revivable dead players !§r");
+        } else if (revivedPlayers.size() == 1) {
+            sender.sendMessage("§aSuccesfully revived 1 player !§r");
         } else {
-            sender.sendMessage("&aSuccesfully revived"+ revivedPlayers.size() + "players !&r");
+            sender.sendMessage("§aSuccesfully revived "+ revivedPlayers.size() +" players !§r");
         }
 
     }

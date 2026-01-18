@@ -9,9 +9,9 @@ commands:
   civilisationdeatheffects :
     description : Main plugin command
     usage : /civ <action>
-    permission : civilisationdeatheffects.admin
+    permission : civcde.admin
 
 permissions:
-  civilisation.bypass:
+  civde.bypass:
     description: ignores death check
     default: false

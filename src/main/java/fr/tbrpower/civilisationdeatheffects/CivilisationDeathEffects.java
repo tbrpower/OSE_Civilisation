@@ -52,18 +52,18 @@ public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
         String playerName = event.getEntity().getName();
         if (event.getEntity().getAddress() == null) return;
 
-        if (! event.getPlayer().hasPermission("civilisation.bypass")) {
+        if (! event.getPlayer().hasPermission("civde.bypass")) {
 
 
-            event.getEntity().banIp("day1 death", //Ban message
+            event.getEntity().banIp("nonPermDeath", //Ban message
                     (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
-                    "day1 ban", //Source of Ban
+                    "nonPermDeath", //Source of Ban
                     false //Kick on ban
             );
 
-            event.getEntity().ban("day1 death",
+            event.getEntity().ban("nonPermDeath",
                     (Duration) null,
-                    "day1 ban",
+                    "nonPermDeath",
                     false
             );
 

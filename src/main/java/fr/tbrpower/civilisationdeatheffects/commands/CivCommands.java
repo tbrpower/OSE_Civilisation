@@ -82,21 +82,12 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
                 for (String playerName : deadPlayers) {
                     sb.append("<#013220>\n - " + playerName + "</#013220>");
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize(sb.toString()
+                    ));
                 }
             }
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("<gold><bold>Liste des joueurs bannis temporairement ("
-                    + deadPlayers.size()
-                    +"): </bold></gold>");
 
-            for (String playerName : deadPlayers) {
-                sb.append("<#013220>\n - " + playerName + "</#013220>");
-            }
-
-
-            sender.sendMessage(MiniMessage.miniMessage().deserialize(sb.toString()
-            ));
         }
     }
 

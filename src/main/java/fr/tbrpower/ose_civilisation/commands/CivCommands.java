@@ -174,7 +174,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage(String.valueOf(args.length));
 
         if (args.length != 5 && args.length != 3) {
-            sender.sendMessage("§cCorrect syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+            sender.sendMessage("§cCorrect syntax : /civ setpos <name> <pos1|pos2> <x> <y>§r");
             return;
         }
 
@@ -187,17 +187,12 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "pos1" -> corner = 1;
             case "pos2" -> corner = 2;
             default -> {
-                sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+                sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> <pos1|pos2> <x> <y>§r");
                 return;
             }
         }
 
 
-
-        if (Math.abs(Integer.parseInt(args[3])) > 29999999 || Math.abs(Integer.parseInt(args[4])) > 29999999)  {
-            sender.sendMessage("Coordinates cannot be higher than 30 Million blocks");
-            return;
-        }
 
         Player player = null;
         if (!(sender instanceof Player p)) {
@@ -211,12 +206,17 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             y = player.getLocation().getBlockY();
         } else {
             try {
-                x = Integer.parseInt(args[3]);
-                y = Integer.parseInt(args[4]);
+                x = Integer.parseInt(args[2]);
+                y = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
                 sender.sendMessage("§cLes coordonnées <x> et <y> doivent être des nombres entiers !");
                 return;
             }
+        }
+
+        if (x > 29999999 || y > 29999999)  {
+            sender.sendMessage("Coordinates cannot be higher than 30 Million blocks");
+            return;
         }
 
         plugin.getConfig().set(args[1]+'.'+'x'+corner, x);

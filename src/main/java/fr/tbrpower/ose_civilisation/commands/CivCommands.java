@@ -169,7 +169,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         int x;
         int y;
 
-        boolean isPlayer = false;
+        boolean usePlayerCoords = false;
 
         sender.sendMessage(String.valueOf(args.length));
 
@@ -179,7 +179,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 3) {
-            isPlayer = true;
+            usePlayerCoords = true;
         }
 
 
@@ -199,12 +199,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (!(sender instanceof Player player)) {
+        Player player = null;
+        if (!(sender instanceof Player p)) {
             sender.sendMessage("§cConsole cannot execute this command");
             return;
         }
+        player = p;
 
-        if (isPlayer) {
+        if (usePlayerCoords) {
             x = player.getLocation().getBlockX();
             y = player.getLocation().getBlockY();
         } else {
@@ -222,7 +224,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         plugin.saveConfig();
 
-        sender.sendMessage("§aCorner "+ corner +" of area "+ args[1] + " set to coordinates §e " + x + ' ' + y + "§r");
+        sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ args[1] + "§a set to coordinates §e " + x + ' ' + y + "§r");
 
 
     }

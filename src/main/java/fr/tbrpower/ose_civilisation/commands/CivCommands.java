@@ -226,7 +226,19 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ args[1] + "§a set to coordinates §e " + x + ' ' + z + "§r");
 
+    }
 
+    public void removeArea(CommandSender sender, String[] args) {
+        if (args.length != 2) {
+            sender.sendMessage("§cWrong syntax : /civ rmarea <name>");
+            return;
+        }
+
+        plugin.getConfig().set(args[1], null);
+
+        plugin.saveConfig();
+
+        sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
     }
 
 }

@@ -167,29 +167,19 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     public void setpos (CommandSender sender, String[] args) {
         int corner = 0;
 
-        if (args.length < 2) {
-            sender.sendMessage("§cArea name not specified ! Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
-            return;
-        }
+        sender.sendMessage(String.valueOf(args.length));
 
-        if (args.length < 3) {
-            switch (args[2]) {
-                case "pos1" -> corner = 1;
-                case "pos2" -> corner = 2;
-                default -> {
-                    sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
-                    return;
-                }
-            }
-
-        }
-        if (args.length < 4) {
-            sender.sendMessage("§cSpecify Y coordinate. Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
-            return;
-        }
-        if (args.length > 4 ) {
+        if (args.length != 5) {
             sender.sendMessage("§cCorrect syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
             return;
+        }
+        switch (args[2]) {
+            case "pos1" -> corner = 1;
+            case "pos2" -> corner = 2;
+            default -> {
+                sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+                return;
+            }
         }
 
         if (Math.abs(Integer.parseInt(args[3])) > 29999999 || Math.abs(Integer.parseInt(args[4])) > 29999999)  {
@@ -203,6 +193,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         plugin.saveConfig();
 
         sender.sendMessage("§aCorner "+ corner +" of area "+ args[1] + " set to coordinates §e " + args[3] + ' ' +args[4] + "§r");
-    }
 
+        try {
+            int x = Integer.parseInt(args[3]);
+            int y = Integer.parseInt(args[4]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§cLes coordonnées <x> et <y> doivent être des nombres entiers !");
+            return;
+        }
+    }
 }
+

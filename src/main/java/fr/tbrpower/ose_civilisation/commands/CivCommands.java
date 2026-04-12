@@ -235,6 +235,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (!(plugin.getConfig().contains(args[1]))) {
+            sender.sendMessage("§eNo area §d"+ args[1] + "§e found. Config was not modified.§r");
+        }
+
         plugin.getConfig().set(args[1], null);
 
         plugin.saveConfig();

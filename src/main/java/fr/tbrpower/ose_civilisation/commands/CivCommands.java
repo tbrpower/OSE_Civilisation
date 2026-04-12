@@ -39,6 +39,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "toggle" -> toggleTempDeath(sender);
             case "info" -> sender.sendMessage("§fTemporary death is currently set to: "+ plugin.getConfig().getBoolean("temp-death"));
             case "newarea" -> newArea(sender, args);
+            case "rmarea" -> removeArea(sender, args);
             case "setpos" -> setpos(sender, args);
             case "startsession" -> sender.sendMessage("wait");
             default -> sender.sendMessage("§cUnknown subcommand.");

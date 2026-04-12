@@ -1,7 +1,5 @@
-package fr.tbrpower.civilisationdeatheffects;
-import fr.tbrpower.civilisationdeatheffects.commands.CivCommands;
-
-import java.net.InetAddress;
+package fr.tbrpower.ose_civilisation;
+import fr.tbrpower.ose_civilisation.commands.CivCommands;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import net.kyori.adventure.text.Component;
@@ -18,14 +16,9 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.UUID;
 
 
-
-
-public class CivilisationDeathEffects extends JavaPlugin implements  Listener {
+public class OSE_Civilisation extends JavaPlugin implements  Listener {
 
     Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
            <red><bold>Vous avez été tué !</bold></red>

@@ -1,6 +1,6 @@
-name: CivilisationDeathEffects
+name: OSE_Civilisation
 version: 0.1
-main: fr.tbrpower.civilisationdeatheffects.CivilisationDeathEffects
+main: fr.tbrpower.ose_civilisation.OSE_Civilisation
 api-version: 1.21
 author: TbrPower
 description: Brr Brr le patapim du joueur

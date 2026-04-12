@@ -1,9 +1,8 @@
-package fr.tbrpower.civilisationdeatheffects.commands;
+package fr.tbrpower.ose_civilisation.commands;
 
-import fr.tbrpower.civilisationdeatheffects.CivilisationDeathEffects;
+import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import com.destroystokyo.paper.profile.PlayerProfile;
-import org.apache.maven.model.Profile;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -13,9 +12,7 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.bukkit.entity.Player;
 
-import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,14 +21,14 @@ import java.util.List;
 public class CivCommands implements CommandExecutor, TabCompleter {
 
 
-    private final CivilisationDeathEffects plugin;
-    public CivCommands(CivilisationDeathEffects plugin) { this.plugin = plugin;}
+    private final OSE_Civilisation plugin;
+    public CivCommands(OSE_Civilisation plugin) { this.plugin = plugin;}
 
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|list|toggle>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|list|toggle|info|newarea|rmarea|setpos|startsession>");
             return true;
         }
 
@@ -41,6 +38,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "list" -> dumpDeadList(sender);
             case "toggle" -> toggleTempDeath(sender);
             case "info" -> sender.sendMessage("§fTemporary death is currently set to: "+ plugin.getConfig().getBoolean("temp-death"));
+            case "newarea" -> newArea(sender, args);
+            case "startsession" -> sender.sendMessage("wait");
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
 
@@ -51,7 +50,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle", "info")
+            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -136,4 +135,21 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         plugin.saveConfig();
         sender.sendMessage("Temporary death is now set to : "+ plugin.getConfig().getBoolean("temp-death"));
     }
+
+    public void newArea(CommandSender sender ,String[] args) {
+        if (args.length == 1) {
+            sender.sendMessage("§4Missing name : action failed.§r");
+        } else if (args.length == 2) {
+            plugin.getConfig().set(args[1]+".x1", 0);
+            plugin.getConfig().set(args[1]+".y1", 0);
+            plugin.getConfig().set(args[1]+".x2", 0);
+            plugin.getConfig().set(args[1]+".y2", 0);
+
+            sender.sendMessage("§2"+args[1]+" is set, define coordinates using /civ setpos§r");
+        } else {
+            sender.sendMessage("Wrong syntax : /civ newarea <name>");
+        }
+
+    }
+
 }

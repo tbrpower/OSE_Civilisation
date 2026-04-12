@@ -166,13 +166,23 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
     public void setpos (CommandSender sender, String[] args) {
         int corner = 0;
+        int x;
+        int y;
+
+        boolean isPlayer = false;
 
         sender.sendMessage(String.valueOf(args.length));
 
-        if (args.length != 5) {
+        if (args.length != 5 && args.length != 3) {
             sender.sendMessage("§cCorrect syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
             return;
         }
+
+        if (args.length == 3) {
+            isPlayer = true;
+        }
+
+
         switch (args[2]) {
             case "pos1" -> corner = 1;
             case "pos2" -> corner = 2;
@@ -182,25 +192,40 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             }
         }
 
+
+
         if (Math.abs(Integer.parseInt(args[3])) > 29999999 || Math.abs(Integer.parseInt(args[4])) > 29999999)  {
             sender.sendMessage("Coordinates cannot be higher than 30 Million blocks");
             return;
         }
 
-        plugin.getConfig().set(args[1]+'.'+'x'+corner, Integer.parseInt(args[3]));
-        plugin.getConfig().set(args[1]+'.'+'y'+corner, Integer.parseInt(args[4]));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cConsole cannot execute this command");
+            return;
+        }
+
+        if (isPlayer) {
+            x = player.getLocation().getBlockX();
+            y = player.getLocation().getBlockY();
+        } else {
+            try {
+                x = Integer.parseInt(args[3]);
+                y = Integer.parseInt(args[4]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage("§cLes coordonnées <x> et <y> doivent être des nombres entiers !");
+                return;
+            }
+        }
+
+        plugin.getConfig().set(args[1]+'.'+'x'+corner, x);
+        plugin.getConfig().set(args[1]+'.'+'y'+corner, y);
 
         plugin.saveConfig();
 
         sender.sendMessage("§aCorner "+ corner +" of area "+ args[1] + " set to coordinates §e " + args[3] + ' ' +args[4] + "§r");
 
-        try {
-            int x = Integer.parseInt(args[3]);
-            int y = Integer.parseInt(args[4]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage("§cLes coordonnées <x> et <y> doivent être des nombres entiers !");
-            return;
-        }
+
     }
+
 }
 

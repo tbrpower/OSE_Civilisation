@@ -222,7 +222,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         plugin.saveConfig();
 
-        sender.sendMessage("§aCorner "+ corner +" of area "+ args[1] + " set to coordinates §e " + args[3] + ' ' +args[4] + "§r");
+        sender.sendMessage("§aCorner "+ corner +" of area "+ args[1] + " set to coordinates §e " + x + ' ' + y + "§r");
 
 
     }

@@ -203,7 +203,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         if (usePlayerCoords) {
             x = player.getLocation().getBlockX();
-            z = player.getLocation().getBlockY();
+            z = player.getLocation().getBlockZ();
         } else {
             try {
                 x = Integer.parseInt(args[2]);

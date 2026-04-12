@@ -154,9 +154,9 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
 
         plugin.getConfig().set(args[1]+".x1", 0);
-        plugin.getConfig().set(args[1]+".y1", 0);
+        plugin.getConfig().set(args[1]+".z1", 0);
         plugin.getConfig().set(args[1]+".x2", 0);
-        plugin.getConfig().set(args[1]+".y2", 0);
+        plugin.getConfig().set(args[1]+".z2", 0);
 
         plugin.saveConfig();
 
@@ -167,14 +167,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     public void setpos (CommandSender sender, String[] args) {
         int corner = 0;
         int x;
-        int y;
+        int z;
 
         boolean usePlayerCoords = false;
 
         sender.sendMessage(String.valueOf(args.length));
 
         if (args.length != 5 && args.length != 3) {
-            sender.sendMessage("§cCorrect syntax : /civ setpos <name> <pos1|pos2> <x> <y>§r");
+            sender.sendMessage("§cCorrect syntax : /civ setpos <name> <pos1|pos2> <x> <z>§r");
             return;
         }
 
@@ -187,7 +187,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "pos1" -> corner = 1;
             case "pos2" -> corner = 2;
             default -> {
-                sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> <pos1|pos2> <x> <y>§r");
+                sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> <pos1|pos2> <x> <z>§r");
                 return;
             }
         }
@@ -203,28 +203,28 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         if (usePlayerCoords) {
             x = player.getLocation().getBlockX();
-            y = player.getLocation().getBlockY();
+            z = player.getLocation().getBlockY();
         } else {
             try {
                 x = Integer.parseInt(args[2]);
-                y = Integer.parseInt(args[3]);
+                z = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                sender.sendMessage("§cLes coordonnées <x> et <y> doivent être des nombres entiers !");
+                sender.sendMessage("§cLes coordonnées <x> et <z> doivent être des nombres entiers !");
                 return;
             }
         }
 
-        if (x > 29999999 || y > 29999999)  {
+        if (x > 29999999 || z > 29999999)  {
             sender.sendMessage("Coordinates cannot be higher than 30 Million blocks");
             return;
         }
 
         plugin.getConfig().set(args[1]+'.'+'x'+corner, x);
-        plugin.getConfig().set(args[1]+'.'+'y'+corner, y);
+        plugin.getConfig().set(args[1]+'.'+'z'+corner, z);
 
         plugin.saveConfig();
 
-        sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ args[1] + "§a set to coordinates §e " + x + ' ' + y + "§r");
+        sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ args[1] + "§a set to coordinates §e " + x + ' ' + z + "§r");
 
 
     }

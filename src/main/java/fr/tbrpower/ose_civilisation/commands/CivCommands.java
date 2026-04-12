@@ -136,20 +136,72 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage("Temporary death is now set to : "+ plugin.getConfig().getBoolean("temp-death"));
     }
 
-    public void newArea(CommandSender sender ,String[] args) {
+    public void newArea(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            sender.sendMessage("§4Missing name : action failed.§r");
-        } else if (args.length == 2) {
-            plugin.getConfig().set(args[1]+".x1", 0);
-            plugin.getConfig().set(args[1]+".y1", 0);
-            plugin.getConfig().set(args[1]+".x2", 0);
-            plugin.getConfig().set(args[1]+".y2", 0);
-
-            sender.sendMessage("§2"+args[1]+" is set, define coordinates using /civ setpos§r");
-        } else {
-            sender.sendMessage("Wrong syntax : /civ newarea <name>");
+            sender.sendMessage("§cMissing name : action failed.§r");
+            return;
         }
 
+        if (plugin.getConfig().contains(args[1])) {
+            sender.sendMessage("§cThis area already exists. Use /civ rmarea "+args[1]+" to delete it.§r");
+            return;
+        }
+
+        if (args.length > 2) {
+            sender.sendMessage("§cWrong syntax : /civ newarea <name>");
+            return;
+        }
+
+        plugin.getConfig().set(args[1]+".x1", 0);
+        plugin.getConfig().set(args[1]+".y1", 0);
+        plugin.getConfig().set(args[1]+".x2", 0);
+        plugin.getConfig().set(args[1]+".y2", 0);
+
+        plugin.saveConfig();
+
+        sender.sendMessage("§a"+args[1]+" is set, define coordinates using /civ setpos§r");
+
+    }
+
+    public void setpos (CommandSender sender, String[] args) {
+        int corner = 0;
+
+        if (args.length < 2) {
+            sender.sendMessage("§cArea name not specified ! Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+            return;
+        }
+
+        if (args.length < 3) {
+            switch (args[2]) {
+                case "pos1" -> corner = 1;
+                case "pos2" -> corner = 2;
+                default -> {
+                    sender.sendMessage("§cSpecify corner : <pos1|pos2>. Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+                    return;
+                }
+            }
+
+        }
+        if (args.length < 4) {
+            sender.sendMessage("§cSpecify Y coordinate. Correct syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+            return;
+        }
+        if (args.length > 4 ) {
+            sender.sendMessage("§cCorrect syntax : /civ setpos <name> [pos1|pos2] <x> <y>§r");
+            return;
+        }
+
+        if (Math.abs(Integer.parseInt(args[3])) > 29999999 || Math.abs(Integer.parseInt(args[4])) > 29999999)  {
+            sender.sendMessage("Coordinates cannot be higher than 30 Million blocks");
+            return;
+        }
+
+        plugin.getConfig().set(args[1]+'.'+'x'+corner, Integer.parseInt(args[3]));
+        plugin.getConfig().set(args[1]+'.'+'y'+corner, Integer.parseInt(args[4]));
+
+        plugin.saveConfig();
+
+        sender.sendMessage("§aCorner "+ corner +" of area "+ args[1] + " set to coordinates §e " + args[3] + ' ' +args[4] + "§r");
     }
 
 }

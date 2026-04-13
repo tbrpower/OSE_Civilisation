@@ -316,8 +316,12 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
             Location loc = new Location(world, rx + 0.5, pos.getY() + 1, rz + 0.5);
 
-            world.getChunkAtAsync(loc).thenAccept(chunk -> {
-                player.teleportAsync(loc);
+            player.teleportAsync(loc).thenAccept(success -> {
+                if (success) {
+                    plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
+                } else {
+                    plugin.getLogger().warning("[OSE_Civilisation] Failed teleporting user " + player.getName() + "(" + player.getUniqueId().toString() + ")");
+                }
             });
             if (!start) {
                 List<String> uuidlist = plugin.getConfig().getStringList("teleported-players");

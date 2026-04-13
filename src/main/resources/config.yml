@@ -16,3 +16,6 @@ session-started : false
 #   x2 :
 #   z2 :
 areas :
+
+# To remember who has already been tp-ed to their area.
+teleported-players :

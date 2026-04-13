@@ -4,10 +4,7 @@ import fr.tbrpower.ose_civilisation.commands.CivCommands;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.BanEntry;
-import org.bukkit.BanList;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.ban.ProfileBanList;
 import org.bukkit.event.EventHandler;
 
@@ -51,7 +48,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
     public void onEnable() {
         saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
-        getLogger().info("[CivilisationDeathEffects] Plugin civilisation activé !");
+        getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");
 
         CivCommands cmd = new CivCommands(this);
         getCommand("civ").setExecutor(cmd);

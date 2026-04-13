@@ -13,9 +13,13 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataAdapterContext;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.beans.PersistenceDelegate;
 import java.net.InetAddress;
 import java.util.*;
 
@@ -45,7 +49,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "newarea" -> newArea(sender, args);
             case "rmarea" -> removeArea(sender, args);
             case "setpos" -> setpos(sender, args);
-            case "startsession" -> sender.sendMessage("wait");
+            case "startsession" -> startSession(sender);
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
 
@@ -148,8 +152,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (plugin.getConfig().contains(args[1])) {
-            sender.sendMessage("§cThis area already exists. Use /civ rmarea "+args[1]+" to delete it.§r");
+        String name = args[1].toLowerCase();
+
+        if (plugin.getConfig().contains(name)) {
+            sender.sendMessage("§cThis area already exists. Use /civ rmarea "+name+" to delete it.§r");
             return;
         }
 
@@ -158,14 +164,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        plugin.getConfig().set("areas."+args[1]+".x1", 0);
-        plugin.getConfig().set("areas."+args[1]+".z1", 0);
-        plugin.getConfig().set("areas."+args[1]+".x2", 0);
-        plugin.getConfig().set("areas."+args[1]+".z2", 0);
+        plugin.getConfig().set("areas."+name+".x1", 0);
+        plugin.getConfig().set("areas."+name+".z1", 0);
+        plugin.getConfig().set("areas."+name+".x2", 0);
+        plugin.getConfig().set("areas."+name+".z2", 0);
 
         plugin.saveConfig();
 
-        sender.sendMessage("§a"+args[1]+" is set, define coordinates using /civ setpos§r");
+        sender.sendMessage("§a"+name+" is set, define coordinates using /civ setpos§r");
 
     }
 
@@ -214,22 +220,24 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 x = Integer.parseInt(args[2]);
                 z = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                sender.sendMessage("§cLes coordonnées <x> et <z> doivent être des nombres entiers !");
+                sender.sendMessage("§cCoordinates <x> and <z> have to be integers !§r");
                 return;
             }
         }
 
         if (x > 29999999 || z > 29999999)  {
-            sender.sendMessage("Coordinates cannot be higher than 30 Million blocks");
+            sender.sendMessage("§cCoordinates cannot be higher than 30 Million blocks§r");
             return;
         }
 
-        plugin.getConfig().set("areas."+args[1]+'.'+'x'+corner, x);
-        plugin.getConfig().set("areas."+args[1]+'.'+'z'+corner, z);
+        String name = args[1].toLowerCase();
+
+        plugin.getConfig().set("areas."+name+'.'+'x'+corner, x);
+        plugin.getConfig().set("areas."+name+'.'+'z'+corner, z);
 
         plugin.saveConfig();
 
-        sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ args[1] + "§a set to coordinates §e " + x + ' ' + z + "§r");
+        sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ name + "§a set to coordinates §e " + x + ' ' + z + "§r");
 
     }
 
@@ -239,19 +247,22 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (!(plugin.getConfig().contains("areas."+args[1]))) {
-            sender.sendMessage("§eNo area §d"+ args[1] + "§e found. Config was not modified.§r");
+        String name = args[1].toLowerCase();
+
+        if (!(plugin.getConfig().contains("areas."+name))) {
+            sender.sendMessage("§eNo area §d"+ name + "§e found. Config was not modified.§r");
             return;
         }
 
-        plugin.getConfig().set("areas."+args[1], null);
+        plugin.getConfig().set("areas."+name, null);
 
         plugin.saveConfig();
 
         sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
     }
 
-    public void tpPlayer(Player player, String area) {
+    public void tpPlayer(Player player, String area, Boolean start) {
+        String uuid = player.getUniqueId().toString();
         int x1 = plugin.getConfig().getInt("areas."+area + ".x1");
         int z1 = plugin.getConfig().getInt("areas."+area + ".z1");
         int x2 = plugin.getConfig().getInt("areas."+area + ".x2");
@@ -296,13 +307,26 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             world.getChunkAtAsync(loc).thenAccept(chunk -> {
                 player.teleportAsync(loc);
             });
+            if (!start) {
+                List<String> uuidlist = plugin.getConfig().getStringList("teleported-players");
+                uuidlist.add(uuid);
+                plugin.getConfig().set("teleported-players", uuidlist);
+                plugin.saveConfig();
+            }
             break;
 
             //  Tom horror.z0 = faux Jola
         }
     }
 
+    public void tpPlayer(Player player, String area) {
+        tpPlayer(player, area, false);
+    }
+
     public void startSession(CommandSender sender) {
+        plugin.getConfig().set("session-started", true);
+        plugin.saveConfig();
+
         ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
 
         if (areasSection == null) {
@@ -316,9 +340,17 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
 
-        Bukkit.getOnlinePlayers().stream()
-                .filter(p -> p)
-                .forEach(p -> p.);
+        for (Player p : onlinePlayers) {
+            for (String name : areaNames) {
+                String permission = "oseciv.area." + name;
+                if (p.hasPermission(permission)) {
+                    tpPlayer(p, name);
+                    break;
+                }
+            }
+        }
+
+
 
     }
 

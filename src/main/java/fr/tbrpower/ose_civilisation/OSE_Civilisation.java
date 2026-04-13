@@ -146,7 +146,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
                 break;
             } else {
                 getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
-                return;
+                break;
             }
         }
     }

@@ -368,12 +368,11 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             for (String name : areaNames) {
                 String permission = "oseciv.area." + name;
                 if (p.hasPermission(permission)) {
-                    tpPlayer(p, name, true);
+                    if (!tpPlayer(p, name, true)) {plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
+                        return;
+                    }
                     if (sessionUUIDs.add(p.getUniqueId().toString())) {
                         break;
-                    } else {
-                        plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
-                        return;
                     }
 
                 }

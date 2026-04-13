@@ -159,10 +159,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        plugin.getConfig().set(args[1]+".x1", 0);
-        plugin.getConfig().set(args[1]+".z1", 0);
-        plugin.getConfig().set(args[1]+".x2", 0);
-        plugin.getConfig().set(args[1]+".z2", 0);
+        plugin.getConfig().set("areas."+args[1]+".x1", 0);
+        plugin.getConfig().set("areas."+args[1]+".z1", 0);
+        plugin.getConfig().set("areas."+args[1]+".x2", 0);
+        plugin.getConfig().set("areas."+args[1]+".z2", 0);
 
         plugin.saveConfig();
 
@@ -225,8 +225,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        plugin.getConfig().set(args[1]+'.'+'x'+corner, x);
-        plugin.getConfig().set(args[1]+'.'+'z'+corner, z);
+        plugin.getConfig().set("areas."+args[1]+'.'+'x'+corner, x);
+        plugin.getConfig().set("areas."+args[1]+'.'+'z'+corner, z);
 
         plugin.saveConfig();
 
@@ -240,12 +240,12 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (!(plugin.getConfig().contains(args[1]))) {
+        if (!(plugin.getConfig().contains("areas."+args[1]))) {
             sender.sendMessage("§eNo area §d"+ args[1] + "§e found. Config was not modified.§r");
             return;
         }
 
-        plugin.getConfig().set(args[1], null);
+        plugin.getConfig().set("areas."+args[1], null);
 
         plugin.saveConfig();
 
@@ -253,10 +253,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     }
 
     public void tpPlayer(Player player, String area) {
-        int x1 = plugin.getConfig().getInt(area + ".x1");
-        int z1 = plugin.getConfig().getInt(area + ".z1");
-        int x2 = plugin.getConfig().getInt(area + ".x2");
-        int z2 = plugin.getConfig().getInt(area + ".z2");
+        int x1 = plugin.getConfig().getInt("areas."+area + ".x1");
+        int z1 = plugin.getConfig().getInt("areas."+area + ".z1");
+        int x2 = plugin.getConfig().getInt("areas."+area + ".x2");
+        int z2 = plugin.getConfig().getInt("areas."+area + ".z2");
 
         int rx;
         int rz;
@@ -303,6 +303,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
     }
 
+    public void startSession() {
+        String[] areas;
+        plugin.getConfig().
+    }
 
 
 }

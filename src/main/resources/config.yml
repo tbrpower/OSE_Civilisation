@@ -4,3 +4,12 @@ temp-death: false
 
 # World used by the plugin, leave blank to use world
 world :
+
+# List all areas.
+# Correct syntax :
+# area-name :
+#   x1 :
+#   z1 :
+#   x2 :
+#   z2 :
+areas :

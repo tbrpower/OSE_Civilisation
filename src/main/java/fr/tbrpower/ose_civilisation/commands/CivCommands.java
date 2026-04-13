@@ -65,7 +65,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession")
+            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -280,6 +280,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         String configWorld = plugin.getConfig().getString("world");
 
+        plugin.getLogger().info(configWorld);
+
         Random rand = new Random();
 
         World world;
@@ -308,6 +310,9 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                     pos = pos.getRelative(BlockFace.DOWN);
                 }
             }
+
+            plugin.getLogger().info(String.valueOf(pos.getX()) + "|" + i);
+            plugin.getLogger().info(String.valueOf(pos.getZ()) + "|" + i);
 
             Location loc = new Location(world, rx + 0.5, pos.getY() + 1, rz + 0.5);
 

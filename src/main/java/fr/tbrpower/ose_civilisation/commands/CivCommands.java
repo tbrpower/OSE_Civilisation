@@ -363,8 +363,9 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage("§eAreas found : §d" + String.join("§e, §d", areaNames) + "§e.§r");
 
         Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+        List<Player> players = new ArrayList<>(onlinePlayers);
 
-        for (Player p : onlinePlayers) {
+        for (Player p : players) {
             for (String name : areaNames) {
                 String permission = "oseciv.area." + name;
                 if (p.hasPermission(permission)) {

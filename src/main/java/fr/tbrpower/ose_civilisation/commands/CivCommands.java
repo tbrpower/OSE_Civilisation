@@ -155,7 +155,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         String name = args[1].toLowerCase();
 
-        if (plugin.getConfig().contains(name)) {
+        if (plugin.getConfig().contains("area."+name)) {
             sender.sendMessage("§cThis area already exists. Use /civ rmarea "+name+" to delete it.§r");
             return;
         }
@@ -172,7 +172,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         plugin.saveConfig();
 
-        sender.sendMessage("§a"+name+" is set, define coordinates using /civ setpos§r");
+        sender.sendMessage("§d"+name+"§a is set, define coordinates using /civ setpos§r");
 
     }
 
@@ -194,7 +194,6 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             usePlayerCoords = true;
         }
 
-
         switch (args[2]) {
             case "pos1" -> corner = 1;
             case "pos2" -> corner = 2;
@@ -203,8 +202,6 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 return;
             }
         }
-
-
 
         Player player = null;
         if (!(sender instanceof Player p)) {
@@ -226,12 +223,17 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             }
         }
 
-        if (x > 29999999 || z > 29999999)  {
+        if (Math.abs(x) > 29999999 || Math.abs(z) > 29999999)  {
             sender.sendMessage("§cCoordinates cannot be higher than 30 Million blocks§r");
             return;
         }
 
         String name = args[1].toLowerCase();
+
+        if (!plugin.getConfig().contains("areas." + name)) {
+            sender.sendMessage("§cArea §d"+name+"§c does not exist. Create it using /civ newarea§r");
+            return;
+        }
 
         plugin.getConfig().set("areas."+name+'.'+'x'+corner, x);
         plugin.getConfig().set("areas."+name+'.'+'z'+corner, z);

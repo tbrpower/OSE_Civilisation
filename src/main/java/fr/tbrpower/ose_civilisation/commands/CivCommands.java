@@ -262,12 +262,12 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
     }
 
-    public void tpPlayer(Player player, String area, Boolean start) {
+    public boolean tpPlayer(Player player, String area, Boolean start) {
         String uuid = player.getUniqueId().toString();
-        int x1 = plugin.getConfig().getInt("areas."+area + ".x1");
-        int z1 = plugin.getConfig().getInt("areas."+area + ".z1");
-        int x2 = plugin.getConfig().getInt("areas."+area + ".x2");
-        int z2 = plugin.getConfig().getInt("areas."+area + ".z2");
+        int x1 = plugin.getConfig().getInt("areas." + area + ".x1");
+        int z1 = plugin.getConfig().getInt("areas." + area + ".z1");
+        int x2 = plugin.getConfig().getInt("areas." + area + ".x2");
+        int z2 = plugin.getConfig().getInt("areas." + area + ".z2");
 
         int rx;
         int rz;
@@ -280,18 +280,18 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         if (configWorld == null || configWorld.trim().isEmpty()) {
             world = Bukkit.getWorld("world");
-        }   else {
+        } else {
             world = Bukkit.getWorld(configWorld);
         }
 
         if (world == null) {
             plugin.getLogger().severe("[OSE_Civilisation] No world '" + configWorld + "' found !");
-            return;
+            return false;
         }
 
         for (int i = 0; i < 1000; i++) {
-            rx = Math.min(x1,x2) + rand.nextInt(Math.abs(x1-x2)+1);
-            rz = Math.min(x1,x2) + rand.nextInt(Math.abs(z1-z2)+1);
+            rx = Math.min(x1, x2) + rand.nextInt(Math.abs(x1 - x2) + 1);
+            rz = Math.min(x1, x2) + rand.nextInt(Math.abs(z1 - z2) + 1);
 
             Block pos = world.getHighestBlockAt(rx, rz);
 
@@ -314,17 +314,19 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 plugin.getConfig().set("teleported-players", uuidlist);
                 plugin.saveConfig();
             }
-            break;
+            return true;
+
 
             //  Tom horror.z0 = faux Jola
         }
+        return false;
     }
 
-    public void tpPlayer(Player player, String area) {
-        tpPlayer(player, area, false);
+    public boolean tpPlayer(Player player, String area) {
+        return tpPlayer(player, area, false);
     }
 
-    private  List<String> sessionUUIDs = new ArrayList<>();
+    private List<String> sessionUUIDs = new ArrayList<>();
 
     public void startSession(CommandSender sender) {
         if (plugin.getConfig().getBoolean("session-started")) {
@@ -351,9 +353,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             for (String name : areaNames) {
                 String permission = "oseciv.area." + name;
                 if (p.hasPermission(permission)) {
-                    tpPlayer(p, name);
-                    sessionUUIDs.add(p.getUniqueId().toString());
-                    break;
+                    tpPlayer(p, name, true);
+                    if (sessionUUIDs.add(p.getUniqueId().toString())) {
+                        break;
+                    } else {
+                        plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
+                        return;
+                    }
+
                 }
             }
         }

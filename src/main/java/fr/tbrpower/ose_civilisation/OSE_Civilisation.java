@@ -6,17 +6,22 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.ban.ProfileBanList;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
+import java.util.Set;
 
 
 public class OSE_Civilisation extends JavaPlugin implements  Listener {
+
+    private CivCommands civCommands;
 
     Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
            <red><bold>Vous avez été tué !</bold></red>
@@ -50,9 +55,10 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");
 
-        CivCommands cmd = new CivCommands(this);
-        getCommand("civ").setExecutor(cmd);
-        getCommand("civ").setTabCompleter(cmd);
+
+        this.civCommands = new CivCommands(this);
+        getCommand("civ").setExecutor(civCommands);
+        getCommand("civ").setTabCompleter(civCommands);
     }
 
     @EventHandler
@@ -66,7 +72,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
 
         if (tempDeath) {deathSource = "nonPermDeath"; message = messageday1;} else {deathSource = "permDeath"; message = messageNormal;}
 
-        if (! event.getPlayer().hasPermission("civde.bypass")) {
+        if (! event.getPlayer().hasPermission("oseciv.bypass")) {
 
 
             event.getEntity().banIp(deathSource, //Ban message
@@ -110,6 +116,31 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
         }
     }
+
+    @EventHandler
+    public void onLogin(PlayerLoginEvent event) {
+        if (event.getPlayer().hasPermission("oseciv.bypass")) {
+            return;
+        }
+        ConfigurationSection areasSection = getConfig().getConfigurationSection("areas");
+        if (areasSection == null) {
+            getLogger().warning("[OSE_Civilisation] No areas config found");
+            return;
+        }
+        Set<String> areaNames = areasSection.getKeys(false);
+
+        for (String name : areaNames) {
+            String permission = "oseciv.area." + name;
+            if (event.getPlayer().hasPermission(permission)) {
+                civCommands.tpPlayer(event.getPlayer(), name);
+                break;
+            } else {
+                getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
+                return;
+            }
+        }
+    }
+
 
 
 }

@@ -51,6 +51,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "rmarea" -> removeArea(sender, args);
             case "setpos" -> setpos(sender, args);
             case "startsession" -> startSession(sender);
+            case "reload" -> {
+                plugin.reloadConfig();
+                sender.sendMessage("%dCiv plugin reloaded§r");
+            }
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
 

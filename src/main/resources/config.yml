@@ -5,6 +5,9 @@ temp-death: false
 # World used by the plugin, leave blank to use world
 world :
 
+# Will tp players to their island if true.
+session-started : false
+
 # List all areas.
 # Correct syntax :
 # area-name :

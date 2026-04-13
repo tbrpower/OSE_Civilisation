@@ -11,14 +11,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.*;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.bukkit.Bukkit.getLogger;
 
@@ -303,9 +302,24 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
     }
 
-    public void startSession() {
-        String[] areas;
-        plugin.getConfig().
+    public void startSession(CommandSender sender) {
+        ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
+
+        if (areasSection == null) {
+            plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
+            return;
+        }
+
+        Set<String> areaNames = areasSection.getKeys(false);
+
+        sender.sendMessage("§eAreas found : §d" + String.join("§e, §d", areaNames) + "§e.§r");
+
+        Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+
+        Bukkit.getOnlinePlayers().stream()
+                .filter(p -> p)
+                .forEach(p -> p.);
+
     }
 
 

@@ -52,9 +52,10 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");
-
 
         this.civCommands = new CivCommands(this);
         getCommand("civ").setExecutor(civCommands);

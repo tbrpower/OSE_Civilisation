@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.ban.ProfileBanList;
 import org.bukkit.event.EventHandler;
 

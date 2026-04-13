@@ -3,11 +3,13 @@ package fr.tbrpower.ose_civilisation.commands;
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import com.destroystokyo.paper.profile.PlayerProfile;
-import org.bukkit.BanEntry;
-import org.bukkit.BanList;
-import org.bukkit.Bukkit;
+import org.apache.commons.lang3.ObjectUtils;
+import org.bukkit.*;
 import org.bukkit.ban.IpBanList;
 import org.bukkit.ban.ProfileBanList;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +18,9 @@ import org.jetbrains.annotations.Nullable;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static org.bukkit.Bukkit.getLogger;
 
 
 public class CivCommands implements CommandExecutor, TabCompleter {
@@ -247,7 +252,58 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
     }
 
-    public void 
+    public void tpPlayer(Player player, String area) {
+        int x1 = plugin.getConfig().getInt(area + ".x1");
+        int z1 = plugin.getConfig().getInt(area + ".z1");
+        int x2 = plugin.getConfig().getInt(area + ".x2");
+        int z2 = plugin.getConfig().getInt(area + ".z2");
+
+        int rx;
+        int rz;
+
+        String configWorld = plugin.getConfig().getString("world");
+
+        Random rand = new Random();
+
+        World world;
+
+        if (configWorld == null || configWorld.trim().isEmpty()) {
+            world = Bukkit.getWorld("world");
+        }   else {
+            world = Bukkit.getWorld(configWorld);
+        }
+
+        if (world == null) {
+            plugin.getLogger().severe("[OSE_Civilisation] No world '" + configWorld + "' found !");
+            return;
+        }
+
+        for (int i = 0; i < 1000; i++) {
+            rx = Math.min(x1,x2) + rand.nextInt(Math.abs(x1-x2)+1);
+            rz = Math.min(x1,x2) + rand.nextInt(Math.abs(z1-z2)+1);
+
+            Block pos = world.getHighestBlockAt(rx, rz);
+
+            if (pos.getType() == Material.WATER || pos.getType() == Material.LAVA || pos.getType() == Material.KELP || pos.getType() == Material.TALL_SEAGRASS) {
+                continue;
+            } else {
+                while (pos.isPassable()) {
+                    pos = pos.getRelative(BlockFace.DOWN);
+                }
+            }
+
+            Location loc = new Location(world, rx + 0.5, pos.getY() + 1, rz + 0.5);
+
+            world.getChunkAtAsync(loc).thenAccept(chunk -> {
+                player.teleportAsync(loc);
+            });
+            break;
+
+            //  Tom horror.z0 = faux Jola
+        }
+    }
+
+
 
 }
 

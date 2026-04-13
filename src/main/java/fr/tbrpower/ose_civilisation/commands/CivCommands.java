@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.util.*;
 
 import static org.bukkit.Bukkit.getLogger;
+import static org.bukkit.Bukkit.savePlayers;
 
 
 public class CivCommands implements CommandExecutor, TabCompleter {
@@ -323,7 +324,13 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         tpPlayer(player, area, false);
     }
 
+    private  List<String> sessionUUIDs = new ArrayList<>();
+
     public void startSession(CommandSender sender) {
+        if (plugin.getConfig().getBoolean("session-started")) {
+            sender.sendMessage("§cSession already started !§r");
+            return;
+        }
         plugin.getConfig().set("session-started", true);
         plugin.saveConfig();
 
@@ -345,13 +352,13 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 String permission = "oseciv.area." + name;
                 if (p.hasPermission(permission)) {
                     tpPlayer(p, name);
+                    sessionUUIDs.add(p.getUniqueId().toString());
                     break;
                 }
             }
         }
-
-
-
+        plugin.getConfig().set("teleported-players", sessionUUIDs);
+        plugin.saveConfig();
     }
 
 

@@ -53,7 +53,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "startsession" -> startSession(sender);
             case "reload" -> {
                 plugin.reloadConfig();
-                sender.sendMessage("%dCiv plugin reloaded§r");
+                sender.sendMessage("§dCiv plugin reloaded§r");
             }
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
@@ -219,8 +219,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             z = player.getLocation().getBlockZ();
         } else {
             try {
-                x = Integer.parseInt(args[2]);
-                z = Integer.parseInt(args[3]);
+                x = Integer.parseInt(args[3]);
+                z = Integer.parseInt(args[4]);
             } catch (NumberFormatException e) {
                 sender.sendMessage("§cCoordinates <x> and <z> have to be integers !§r");
                 return;
@@ -297,7 +297,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         for (int i = 0; i < 1000; i++) {
             rx = Math.min(x1, x2) + rand.nextInt(Math.abs(x1 - x2) + 1);
-            rz = Math.min(x1, x2) + rand.nextInt(Math.abs(z1 - z2) + 1);
+            rz = Math.min(z1, z2) + rand.nextInt(Math.abs(z1 - z2) + 1);
 
             Block pos = world.getHighestBlockAt(rx, rz);
 

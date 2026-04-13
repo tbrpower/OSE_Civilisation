@@ -247,5 +247,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
     }
 
+    public void 
+
 }
 

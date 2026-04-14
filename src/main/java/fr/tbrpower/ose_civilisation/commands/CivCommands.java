@@ -52,6 +52,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "rmarea" -> removeArea(sender, args);
             case "setpos" -> setpos(sender, args);
             case "startsession" -> startSession(sender);
+            case "cancelsession" -> cancelSession(sender);
+            case "confirm" -> confirm(sender);
             case "reload" -> {
                 plugin.reloadConfig();
                 sender.sendMessage("§dCiv plugin reloaded§r");
@@ -66,7 +68,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload")
+            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -74,9 +76,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
 
 
-        if (args.length == 2 && args[0].equalsIgnoreCase("ban")) {
-            return Bukkit.getOnlinePlayers().stream()
-                    .map(Player::getName)
+        if (args.length == 2 && (args[0].equalsIgnoreCase("rmarea") || args[0].equalsIgnoreCase("setpos"))) {
+            return Objects.requireNonNull(plugin.getConfig().getConfigurationSection("areas")).getKeys(false).stream()
                     .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
                     .toList();
         }
@@ -388,15 +389,64 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     }
 
     public void cancelSession(CommandSender sender, Boolean confirmed) {
+
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
         if (plugin.getConfig().getBoolean("session-started")) {
             if (confirmed) {
                 plugin.getConfig().set("session-started", false);
                 plugin.getConfig().set("teleported-players", new ArrayList<String>());
+                plugin.reloadConfig();
+                sender.sendMessage("§aSession cancelled !");
             } else {
-                return;
+                sender.sendMessage("§eConfirm action using §2/civ confirm§r");
+                confirmationList.add(new PendingConfirmation(PendingAction.CANCEL_SESSION, null ,player.getUniqueId()));
             }
         } else {
             sender.sendMessage("§cSession not active§r");
+        }
+    }
+
+    public void cancelSession(CommandSender sender) {
+        cancelSession(sender, false);
+    }
+
+    public enum PendingAction {
+        START_SESSION,
+        CANCEL_SESSION,
+        REMOVE_AREA
+    }
+    public class PendingConfirmation{
+        private final PendingAction action;
+        private final Object data;
+        private final UUID uniqueUserID;
+
+        public PendingConfirmation(PendingAction action, Object data, UUID uniqueUserID) {
+            this.action = action;
+            this.data = data;
+            this.uniqueUserID = uniqueUserID;
+        }
+    }
+
+    public final List<PendingConfirmation> confirmationList = new ArrayList<PendingConfirmation>();
+
+    public void confirm(CommandSender sender) {
+        UUID senderUUID;
+        if (sender instanceof Player player) {
+            senderUUID = player.getUniqueId();
+        } else {
+            return;
+        }
+
+        for (PendingConfirmation confirmation : confirmationList) {
+            if (confirmation.uniqueUserID == senderUUID) {
+                switch (confirmation.action) {
+                    case CANCEL_SESSION ->
+                            cancelSession(sender, true);
+                }
+            }
         }
     }
 

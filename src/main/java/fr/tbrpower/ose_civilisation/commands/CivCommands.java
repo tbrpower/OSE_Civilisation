@@ -198,6 +198,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             usePlayerCoords = true;
         }
 
+
         switch (args[2]) {
             case "pos1" -> corner = 1;
             case "pos2" -> corner = 2;
@@ -206,6 +207,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 return;
             }
         }
+
+
 
         Player player = null;
         if (!(sender instanceof Player p)) {
@@ -341,7 +344,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         return tpPlayer(player, area, false);
     }
 
-    private List<String> sessionUUIDs = new ArrayList<>();
+    private Set<String> sessionUUIDs = new HashSet<>();
 
     public void startSession(CommandSender sender) {
         if (plugin.getConfig().getBoolean("session-started")) {

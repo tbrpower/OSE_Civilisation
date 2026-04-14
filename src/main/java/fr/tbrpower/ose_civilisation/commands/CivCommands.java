@@ -326,7 +326,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         return tpPlayer(player, area, false);
     }
 
-    private List<String> sessionUUIDs = new ArrayList<>();
+    private Set<String> sessionUUIDs = new HashSet<>();
 
     public void startSession(CommandSender sender) {
         if (plugin.getConfig().getBoolean("session-started")) {
@@ -355,19 +355,17 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 if (p.hasPermission(permission)) {
                     tpPlayer(p, name, true);
                     if (sessionUUIDs.add(p.getUniqueId().toString())) {
-                        break;
+                        return;
                     } else {
                         plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
                         return;
                     }
-
                 }
             }
         }
         plugin.getConfig().set("teleported-players", sessionUUIDs);
         plugin.saveConfig();
     }
-
 
 }
 

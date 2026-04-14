@@ -129,6 +129,11 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         }
         Set<String> areaNames = areasSection.getKeys(false);
 
+        if (getConfig().getStringList("teleported-players").contains(event.getPlayer().getUniqueId().toString())) {
+            getLogger().info("§7Player " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has already been telported.");
+            return;
+        }
+
         for (String name : areaNames) {
             String permission = "oseciv.area." + name;
             if (event.getPlayer().hasPermission(permission)) {

@@ -19,6 +19,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.beans.JavaBean;
 import java.beans.PersistenceDelegate;
 import java.net.InetAddress;
 import java.util.*;
@@ -37,7 +38,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|list|toggle|info|newarea|rmarea|setpos|startsession>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|list|toggle|info|newarea|rmarea|setpos|startsession|reload>");
             return true;
         }
 
@@ -384,6 +385,19 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
         plugin.getConfig().set("teleported-players", sessionUUIDs);
         plugin.saveConfig();
+    }
+
+    public void cancelSession(CommandSender sender, Boolean confirmed) {
+        if (plugin.getConfig().getBoolean("session-started")) {
+            if (confirmed) {
+                plugin.getConfig().set("session-started", false);
+                plugin.getConfig().set("teleported-players", new ArrayList<String>());
+            } else {
+                return;
+            }
+        } else {
+            sender.sendMessage("§cSession not active§r");
+        }
     }
 
 

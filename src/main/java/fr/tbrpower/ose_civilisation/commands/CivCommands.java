@@ -51,6 +51,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "rmarea" -> removeArea(sender, args);
             case "setpos" -> setpos(sender, args);
             case "startsession" -> startSession(sender);
+            case "reload" -> {
+                plugin.reloadConfig();
+                sender.sendMessage("§dCiv plugin reloaded§r");
+            }
             default -> sender.sendMessage("§cUnknown subcommand.");
         }
 
@@ -61,7 +65,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession")
+            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -155,7 +159,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         String name = args[1].toLowerCase();
 
-        if (plugin.getConfig().contains(name)) {
+        if (plugin.getConfig().contains("area."+name)) {
             sender.sendMessage("§cThis area already exists. Use /civ rmarea "+name+" to delete it.§r");
             return;
         }
@@ -172,7 +176,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         plugin.saveConfig();
 
-        sender.sendMessage("§a"+name+" is set, define coordinates using /civ setpos§r");
+        sender.sendMessage("§d"+name+"§a is set, define coordinates using /civ setpos§r");
 
     }
 
@@ -218,20 +222,25 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             z = player.getLocation().getBlockZ();
         } else {
             try {
-                x = Integer.parseInt(args[2]);
-                z = Integer.parseInt(args[3]);
+                x = Integer.parseInt(args[3]);
+                z = Integer.parseInt(args[4]);
             } catch (NumberFormatException e) {
                 sender.sendMessage("§cCoordinates <x> and <z> have to be integers !§r");
                 return;
             }
         }
 
-        if (x > 29999999 || z > 29999999)  {
+        if (Math.abs(x) > 29999999 || Math.abs(z) > 29999999)  {
             sender.sendMessage("§cCoordinates cannot be higher than 30 Million blocks§r");
             return;
         }
 
         String name = args[1].toLowerCase();
+
+        if (!plugin.getConfig().contains("areas." + name)) {
+            sender.sendMessage("§cArea §d"+name+"§c does not exist. Create it using /civ newarea§r");
+            return;
+        }
 
         plugin.getConfig().set("areas."+name+'.'+'x'+corner, x);
         plugin.getConfig().set("areas."+name+'.'+'z'+corner, z);
@@ -274,6 +283,8 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         String configWorld = plugin.getConfig().getString("world");
 
+        plugin.getLogger().info(configWorld);
+
         Random rand = new Random();
 
         World world;
@@ -291,7 +302,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
         for (int i = 0; i < 1000; i++) {
             rx = Math.min(x1, x2) + rand.nextInt(Math.abs(x1 - x2) + 1);
-            rz = Math.min(x1, x2) + rand.nextInt(Math.abs(z1 - z2) + 1);
+            rz = Math.min(z1, z2) + rand.nextInt(Math.abs(z1 - z2) + 1);
 
             Block pos = world.getHighestBlockAt(rx, rz);
 
@@ -303,10 +314,17 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 }
             }
 
+            plugin.getLogger().info(String.valueOf(pos.getX()) + "|" + i);
+            plugin.getLogger().info(String.valueOf(pos.getZ()) + "|" + i);
+
             Location loc = new Location(world, rx + 0.5, pos.getY() + 1, rz + 0.5);
 
-            world.getChunkAtAsync(loc).thenAccept(chunk -> {
-                player.teleportAsync(loc);
+            player.teleportAsync(loc).thenAccept(success -> {
+                if (success) {
+                    plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
+                } else {
+                    plugin.getLogger().warning("[OSE_Civilisation] Failed teleporting user " + player.getName() + "(" + player.getUniqueId().toString() + ")");
+                }
             });
             if (!start) {
                 List<String> uuidlist = plugin.getConfig().getStringList("teleported-players");
@@ -348,24 +366,26 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         sender.sendMessage("§eAreas found : §d" + String.join("§e, §d", areaNames) + "§e.§r");
 
         Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+        List<Player> players = new ArrayList<>(onlinePlayers);
 
-        for (Player p : onlinePlayers) {
+        for (Player p : players) {
             for (String name : areaNames) {
                 String permission = "oseciv.area." + name;
                 if (p.hasPermission(permission)) {
-                    tpPlayer(p, name, true);
-                    if (sessionUUIDs.add(p.getUniqueId().toString())) {
-                        return;
-                    } else {
-                        plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
+                    if (!tpPlayer(p, name, true)) {plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
                         return;
                     }
+                    if (sessionUUIDs.add(p.getUniqueId().toString())) {
+                        break;
+                    }
+
                 }
             }
         }
         plugin.getConfig().set("teleported-players", sessionUUIDs);
         plugin.saveConfig();
     }
+
 
 }
 

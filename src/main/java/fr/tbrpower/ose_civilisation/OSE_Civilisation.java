@@ -16,6 +16,8 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
 
@@ -52,9 +54,17 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
+        getConfig().addDefault("temp-death", false);
+        getConfig().addDefault("world", "arcadia");
+        getConfig().addDefault("session-started", false);
+        getConfig().addDefault("areas", new HashMap<String, Object>());
+        getConfig().addDefault("teleported-players", new ArrayList<String>());
+
+        getConfig().options().copyDefaults(true);
+        saveConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");
-
 
         this.civCommands = new CivCommands(this);
         getCommand("civ").setExecutor(civCommands);
@@ -141,7 +151,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
                 break;
             } else {
                 getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
-                return;
+                break;
             }
         }
     }

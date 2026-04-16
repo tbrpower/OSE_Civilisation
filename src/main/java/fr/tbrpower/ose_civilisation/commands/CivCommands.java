@@ -9,6 +9,7 @@ import org.bukkit.ban.IpBanList;
 import org.bukkit.ban.ProfileBanList;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.FaceAttachable;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.*;
 import org.bukkit.configuration.ConfigurationSection;
@@ -77,6 +78,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "startsession" -> startSession(sender);
             case "cancelsession" -> cancelSession(sender);
             case "confirm" -> confirm(sender);
+            case "cancel" -> cancel(sender);
             case "reload" -> {
                 plugin.reloadConfig();
                 sender.sendMessage("§dCiv plugin reloaded§r");
@@ -91,7 +93,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm")
+            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm", "cancel")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -472,14 +474,23 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
     public void confirm(CommandSender sender) {
         UUID senderUUID;
+
+        Boolean playerHasAction = false;
+
         if (sender instanceof Player player) {
             senderUUID = player.getUniqueId();
         } else {
             return;
         }
 
+        if (confirmationList.isEmpty()) {
+            sender.sendMessage("§cNo actions to confirm !");
+            return;
+        }
+
         for (PendingConfirmation confirmation : confirmationList) {
             if (confirmation.uniqueUserID == senderUUID) {
+                playerHasAction = true;
                 switch (confirmation.action) {
                     case CANCEL_SESSION ->
                             cancelSession(sender, true);
@@ -492,7 +503,37 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                     }
                 }
                 }
+        if (!playerHasAction) {
+            sender.sendMessage("§cNo actions to confirm !");
         }
+        }
+
+    public void cancel(CommandSender sender) {
+        UUID senderUUID;
+
+        Boolean playerHasAction = false;
+
+        if (sender instanceof Player player) {
+            senderUUID = player.getUniqueId();
+        } else {
+            return;
+        }
+
+        if (confirmationList.isEmpty()) {
+            sender.sendMessage("§cNo actions left to cancel !");
+            return;
+        }
+
+        for (PendingConfirmation confirmation : confirmationList) {
+            if (confirmation.uniqueUserID == senderUUID) {
+                playerHasAction = true;
+                confirmationList.remove(confirmation);
+            }
+        }
+        if (!playerHasAction) {
+            sender.sendMessage("§cNo actions to cancel !");
+        }
+    }
     }
 
 

@@ -62,14 +62,15 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|list|toggle|info|newarea|rmarea|setpos|startsession|reload>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|listtemp|listperm|toggle|info|newarea|rmarea|setpos|startsession|reload|confirm|cancel>");
             return true;
         }
 
 
         switch (args[0].toLowerCase()) {
             case "pardonall" -> unbanDeadPlayers(sender);
-            case "list" -> dumpDeadList(sender);
+            case "listtemp" -> dumpDeadList(sender);
+            case "listperm" -> dumpPermaDeadList(sender);
             case "toggle" -> toggleTempDeath(sender);
             case "info" -> sender.sendMessage("§fTemporary death is currently set to: "+ plugin.getConfig().getBoolean("temp-death"));
             case "newarea" -> newArea(sender, args);
@@ -93,7 +94,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "list", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm", "cancel")
+            return List.of("pardonall", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm", "cancel")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -127,6 +128,38 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             } else {
                 StringBuilder sb = new StringBuilder();
                 sb.append("<gold><bold>List of temporarily banned players "
+                        + deadPlayers.size()
+                        +"): </bold></gold>");
+
+                for (String playerName : deadPlayers) {
+                    sb.append("<#026440>\n - " + playerName + "</#026440>");
+                    sender.sendMessage(MiniMessage.miniMessage().deserialize(sb.toString()
+                    ));
+                }
+            }
+
+
+        }
+    }
+
+    public void dumpPermaDeadList(CommandSender sender) {
+        if (sender != null) {
+            ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
+
+            ArrayList<String> deadPlayers = new ArrayList<String>();
+
+            for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
+                PlayerProfile target = (PlayerProfile) entry.getBanTarget();
+                if (entry.getSource().equals("permDeath")) {
+                    deadPlayers.add(target.getName());
+                }
+            }
+
+            if (deadPlayers.isEmpty()) {
+                sender.sendMessage("§6§lNo permanently dead players :( !");
+            } else {
+                StringBuilder sb = new StringBuilder();
+                sb.append("<gold><bold>List of permanently dead players "
                         + deadPlayers.size()
                         +"): </bold></gold>");
 

@@ -205,6 +205,37 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
     }
 
+    public void unbanPermaDeadPlayers(CommandSender sender) {
+        ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
+        IpBanList ipBanList = (IpBanList) Bukkit.getBanList(BanList.Type.IP);
+
+        ArrayList<String> revivedPlayers = new ArrayList<String>();
+
+        for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
+            PlayerProfile target = (PlayerProfile) entry.getBanTarget();
+            if (! (entry.getSource().isEmpty())  && entry.getSource().equals("permDeath")) {
+                profileBanList.pardon(target);
+                ipBanList.pardon(target.getName());
+                revivedPlayers.add(target.getName());
+            }
+        }
+
+        for (BanEntry<? super InetAddress> entry : ipBanList.getEntries()) {
+            if (! (entry.getSource().isEmpty()) && entry.getSource().equals("permDeath")) {
+                ipBanList.pardon(entry.getTarget());
+            }
+        }
+
+        if (revivedPlayers.isEmpty() ) {
+            sender.sendMessage("§cNo permanently dead players !§r");
+        } else if (revivedPlayers.size() == 1) {
+            sender.sendMessage("§aSuccesfully revived 1 player !§r");
+        } else {
+            sender.sendMessage("§aSuccesfully revived "+ revivedPlayers.size() +" players !§r");
+        }
+
+    }
+
     public void toggleTempDeath(CommandSender sender) {
         plugin.getConfig().set("temp-death", ! (plugin.getConfig().getBoolean("temp-death")));
         plugin.saveConfig();

@@ -64,13 +64,13 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|pardonperm|listtemp|listperm|toggle|info|newarea|rmarea|setpos|startsession|reload|confirm|cancel>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|pardonperm|listtemp|listperm|toggle|info|newarea|rmarea|setpos|startsession|cancelsession|reload|confirm|cancel>");
             return true;
         }
 
 
         switch (args[0].toLowerCase()) {
-            case "pardonall" -> unbanDeadPlayers(sender);
+            case "pardontemp" -> unbanDeadPlayers(sender);
             case "pardonperm" -> unbanPermaDeadPlayers(sender);
             case "listtemp" -> dumpDeadList(sender);
             case "listperm" -> dumpPermaDeadList(sender);
@@ -97,7 +97,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm", "cancel")
+            return List.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "cancelsession", "reload", "confirm", "cancel")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -582,6 +582,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                         }
                     case REVIVE_PLAYERS -> unbanPermaDeadPlayers(sender, true);
                     }
+                    confirmationList.remove(confirmation);
                 }
                 }
         if (!playerHasAction) {

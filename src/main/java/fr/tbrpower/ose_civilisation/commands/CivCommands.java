@@ -537,6 +537,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             if (confirmed) {
                 plugin.getConfig().set("session-started", false);
                 plugin.getConfig().set("teleported-players", new ArrayList<String>());
+                plugin.saveConfig();
                 plugin.reloadConfig();
                 sender.sendMessage("§aSession cancelled !");
             } else {
@@ -569,13 +570,13 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         }
 
         var iterator = confirmationList.iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext() && !playerHasAction) {
             PendingConfirmation confirmation = iterator.next();
             if (confirmation.uniqueUserID.equals(senderUUID)) {
                 playerHasAction = true;
                 switch (confirmation.action) {
                     case CANCEL_SESSION -> {
-                            cancelSession(sender, true); iterator.remove(); iterator.remove();
+                            cancelSession(sender, true); iterator.remove();
                         }
                     case START_SESSION -> {
                             startSession(sender, true);
@@ -591,7 +592,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                             iterator.remove();
                     }
                     }
-                    confirmationList.remove(confirmation);
+
                 }
                 }
         if (!playerHasAction) {

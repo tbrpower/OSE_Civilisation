@@ -12,10 +12,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.command.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -358,6 +361,12 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             player.teleportAsync(loc).thenAccept(success -> {
                 if (success) {
                     plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
+
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10*20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 5*20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120*20, 0, true, true, false));
+
+                    player.sendTitle("§6"+area.substring(0,1).toUpperCase()+area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5*20, 20*20);
                 } else {
                     plugin.getLogger().warning("[OSE_Civilisation] Failed teleporting user " + player.getName() + "(" + player.getUniqueId().toString() + ")");
                 }

@@ -43,8 +43,10 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     public enum PendingAction {
         START_SESSION,
         CANCEL_SESSION,
-        REMOVE_AREA
+        REMOVE_AREA,
+        REVIVE_PLAYERS
     }
+
     public class PendingConfirmation{
         private final PendingAction action;
         private final Object data;
@@ -62,13 +64,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|listtemp|listperm|toggle|info|newarea|rmarea|setpos|startsession|reload|confirm|cancel>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|pardonperm|listtemp|listperm|toggle|info|newarea|rmarea|setpos|startsession|reload|confirm|cancel>");
             return true;
         }
 
 
         switch (args[0].toLowerCase()) {
             case "pardonall" -> unbanDeadPlayers(sender);
+            case "pardonperm" -> unbanPermaDeadPlayers(sender);
             case "listtemp" -> dumpDeadList(sender);
             case "listperm" -> dumpPermaDeadList(sender);
             case "toggle" -> toggleTempDeath(sender);
@@ -94,7 +97,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardonall", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm", "cancel")
+            return List.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "reload", "confirm", "cancel")
                     .stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
@@ -205,35 +208,48 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
     }
 
-    public void unbanPermaDeadPlayers(CommandSender sender) {
-        ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
-        IpBanList ipBanList = (IpBanList) Bukkit.getBanList(BanList.Type.IP);
-
-        ArrayList<String> revivedPlayers = new ArrayList<String>();
-
-        for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
-            PlayerProfile target = (PlayerProfile) entry.getBanTarget();
-            if (! (entry.getSource().isEmpty())  && entry.getSource().equals("permDeath")) {
-                profileBanList.pardon(target);
-                ipBanList.pardon(target.getName());
-                revivedPlayers.add(target.getName());
-            }
+    public void unbanPermaDeadPlayers(CommandSender sender, Boolean confirmed) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cCannot unban dead players as CONSOLE§r");
+            return;
         }
 
-        for (BanEntry<? super InetAddress> entry : ipBanList.getEntries()) {
-            if (! (entry.getSource().isEmpty()) && entry.getSource().equals("permDeath")) {
-                ipBanList.pardon(entry.getTarget());
-            }
-        }
+        if (confirmed) {
+            ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
+            IpBanList ipBanList = (IpBanList) Bukkit.getBanList(BanList.Type.IP);
 
-        if (revivedPlayers.isEmpty() ) {
-            sender.sendMessage("§cNo permanently dead players !§r");
-        } else if (revivedPlayers.size() == 1) {
-            sender.sendMessage("§aSuccesfully revived 1 player !§r");
+            ArrayList<String> revivedPlayers = new ArrayList<String>();
+
+            for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
+                PlayerProfile target = (PlayerProfile) entry.getBanTarget();
+                if (! (entry.getSource().isEmpty())  && entry.getSource().equals("permDeath")) {
+                    profileBanList.pardon(target);
+                    ipBanList.pardon(target.getName());
+                    revivedPlayers.add(target.getName());
+                }
+            }
+
+            for (BanEntry<? super InetAddress> entry : ipBanList.getEntries()) {
+                if (! (entry.getSource().isEmpty()) && entry.getSource().equals("permDeath")) {
+                    ipBanList.pardon(entry.getTarget());
+                }
+            }
+
+            if (revivedPlayers.isEmpty() ) {
+                sender.sendMessage("§cNo permanently dead players !§r");
+            } else if (revivedPlayers.size() == 1) {
+                sender.sendMessage("§aSuccesfully revived 1 player !§r");
+            } else {
+                sender.sendMessage("§aSuccesfully revived "+ revivedPlayers.size() +" players !§r");
+            }
         } else {
-            sender.sendMessage("§aSuccesfully revived "+ revivedPlayers.size() +" players !§r");
+            sender.sendMessage("§c§lWARNING :§r§c UNBANS CANNOT BE REVERTED. If you want to proceed type '/civ confirm'. §a§lTo cancel type '/civ cancel'§r");
+            confirmationList.add(new PendingConfirmation(PendingAction.REVIVE_PLAYERS, null ,player.getUniqueId()));
         }
+    }
 
+    public void unbanPermaDeadPlayers(CommandSender sender) {
+        unbanPermaDeadPlayers(sender, false);
     }
 
     public void toggleTempDeath(CommandSender sender) {
@@ -560,10 +576,11 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                             cancelSession(sender, true);
                     case START_SESSION ->
                             startSession(sender, true);
-                    case REMOVE_AREA ->{
+                    case REMOVE_AREA -> {
                             String[] args = (String[])confirmation.data;
                             removeArea(sender, args, true);
                         }
+                    case REVIVE_PLAYERS -> unbanPermaDeadPlayers(sender, true);
                     }
                 }
                 }

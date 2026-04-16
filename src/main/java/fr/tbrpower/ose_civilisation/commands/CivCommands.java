@@ -568,19 +568,28 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        for (PendingConfirmation confirmation : confirmationList) {
-            if (confirmation.uniqueUserID == senderUUID) {
+        var iterator = confirmationList.iterator();
+        while (iterator.hasNext()) {
+            PendingConfirmation confirmation = iterator.next();
+            if (confirmation.uniqueUserID.equals(senderUUID)) {
                 playerHasAction = true;
                 switch (confirmation.action) {
-                    case CANCEL_SESSION ->
-                            cancelSession(sender, true);
-                    case START_SESSION ->
+                    case CANCEL_SESSION -> {
+                            cancelSession(sender, true); iterator.remove(); iterator.remove();
+                        }
+                    case START_SESSION -> {
                             startSession(sender, true);
+                            iterator.remove();
+                        }
                     case REMOVE_AREA -> {
                             String[] args = (String[])confirmation.data;
                             removeArea(sender, args, true);
+                            iterator.remove();
                         }
-                    case REVIVE_PLAYERS -> unbanPermaDeadPlayers(sender, true);
+                    case REVIVE_PLAYERS -> {
+                            unbanPermaDeadPlayers(sender, true);
+                            iterator.remove();
+                    }
                     }
                     confirmationList.remove(confirmation);
                 }
@@ -606,12 +615,15 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        for (PendingConfirmation confirmation : confirmationList) {
-            if (confirmation.uniqueUserID == senderUUID) {
+        var iterator = confirmationList.iterator();
+        while (iterator.hasNext()) {
+            PendingConfirmation confirmation = iterator.next();
+            if (confirmation.uniqueUserID.equals(senderUUID)) {
+                iterator.remove();
                 playerHasAction = true;
-                confirmationList.remove(confirmation);
             }
         }
+
         if (!playerHasAction) {
             sender.sendMessage("§cNo actions to cancel !");
         }

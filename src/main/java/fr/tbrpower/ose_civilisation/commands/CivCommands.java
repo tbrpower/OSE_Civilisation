@@ -34,6 +34,26 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     private final OSE_Civilisation plugin;
     public CivCommands(OSE_Civilisation plugin) { this.plugin = plugin;}
 
+    private Set<String> sessionUUIDs = new HashSet<>();
+
+    public enum PendingAction {
+        START_SESSION,
+        CANCEL_SESSION,
+        REMOVE_AREA
+    }
+    public class PendingConfirmation{
+        private final PendingAction action;
+        private final Object data;
+        private final UUID uniqueUserID;
+
+        public PendingConfirmation(PendingAction action, Object data, UUID uniqueUserID) {
+            this.action = action;
+            this.data = data;
+            this.uniqueUserID = uniqueUserID;
+        }
+    }
+
+    public final List<PendingConfirmation> confirmationList = new ArrayList<PendingConfirmation>();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
@@ -253,9 +273,14 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
     }
 
-    public void removeArea(CommandSender sender, String[] args) {
+    public void removeArea(CommandSender sender, String[] args, Boolean confirmed) {
         if (args.length != 2) {
             sender.sendMessage("§cWrong syntax : /civ rmarea <name>");
+            return;
+        }
+
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cCannot remove area as CONSOLE§r");
             return;
         }
 
@@ -266,11 +291,20 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             return;
         }
 
-        plugin.getConfig().set("areas."+name, null);
+        if (confirmed) {
+            plugin.getConfig().set("areas." + name, null);
 
-        plugin.saveConfig();
+            plugin.saveConfig();
 
-        sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
+            sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
+        } else {
+            sender.sendMessage("§eConfirm action using §2/civ confirm§r");
+            confirmationList.add(new PendingConfirmation(PendingAction.REMOVE_AREA, args ,player.getUniqueId()));
+        }
+    }
+
+    public void removeArea(CommandSender sender, String[] args) {
+        removeArea(sender, args, false);
     }
 
     public boolean tpPlayer(Player player, String area, Boolean start) {
@@ -346,46 +380,60 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         return tpPlayer(player, area, false);
     }
 
-    private Set<String> sessionUUIDs = new HashSet<>();
-
-    public void startSession(CommandSender sender) {
+    public void startSession(CommandSender sender, Boolean confirmed) {
         if (plugin.getConfig().getBoolean("session-started")) {
             sender.sendMessage("§cSession already started !§r");
             return;
         }
-        plugin.getConfig().set("session-started", true);
-        plugin.saveConfig();
 
-        ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
-
-        if (areasSection == null) {
-            plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cCannot start session as CONSOLE§r");
             return;
         }
 
-        Set<String> areaNames = areasSection.getKeys(false);
+        if (confirmed) {
+            plugin.getConfig().set("session-started", true);
+            plugin.saveConfig();
 
-        sender.sendMessage("§eAreas found : §d" + String.join("§e, §d", areaNames) + "§e.§r");
+            ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
 
-        Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
-        List<Player> players = new ArrayList<>(onlinePlayers);
+            if (areasSection == null) {
+                plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
+                return;
+            }
 
-        for (Player p : players) {
-            for (String name : areaNames) {
-                String permission = "oseciv.area." + name;
-                if (p.hasPermission(permission)) {
-                    if (!tpPlayer(p, name, true)) {plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
-                        return;
+            Set<String> areaNames = areasSection.getKeys(false);
+
+            sender.sendMessage("§eAreas found : §d" + String.join("§e, §d", areaNames) + "§e.§r");
+
+            Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+            List<Player> players = new ArrayList<>(onlinePlayers);
+
+            for (Player p : players) {
+                for (String name : areaNames) {
+                    String permission = "oseciv.area." + name;
+                    if (p.hasPermission(permission)) {
+                        if (!tpPlayer(p, name, true)) {
+                            plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
+                            return;
+                        }
+                        if (sessionUUIDs.add(p.getUniqueId().toString())) {
+                            break;
+                        }
+
                     }
-                    if (sessionUUIDs.add(p.getUniqueId().toString())) {
-                        break;
-                    }
-
                 }
             }
+            plugin.getConfig().set("teleported-players", sessionUUIDs);
+            plugin.saveConfig();
+        } else {
+            sender.sendMessage("§eConfirm action using §2/civ confirm§r");
+            confirmationList.add(new PendingConfirmation(PendingAction.START_SESSION, null ,player.getUniqueId()));
         }
-        plugin.getConfig().set("teleported-players", sessionUUIDs);
-        plugin.saveConfig();
+    }
+
+    public void startSession(CommandSender sender) {
+        startSession(sender, false);
     }
 
     public void cancelSession(CommandSender sender, Boolean confirmed) {
@@ -413,25 +461,6 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         cancelSession(sender, false);
     }
 
-    public enum PendingAction {
-        START_SESSION,
-        CANCEL_SESSION,
-        REMOVE_AREA
-    }
-    public class PendingConfirmation{
-        private final PendingAction action;
-        private final Object data;
-        private final UUID uniqueUserID;
-
-        public PendingConfirmation(PendingAction action, Object data, UUID uniqueUserID) {
-            this.action = action;
-            this.data = data;
-            this.uniqueUserID = uniqueUserID;
-        }
-    }
-
-    public final List<PendingConfirmation> confirmationList = new ArrayList<PendingConfirmation>();
-
     public void confirm(CommandSender sender) {
         UUID senderUUID;
         if (sender instanceof Player player) {
@@ -445,11 +474,16 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 switch (confirmation.action) {
                     case CANCEL_SESSION ->
                             cancelSession(sender, true);
+                    case START_SESSION ->
+                            startSession(sender, true);
+                    case REMOVE_AREA ->{
+                            String[] args = (String[])confirmation.data;
+                            removeArea(sender, args, true);
+                        }
+                    }
                 }
-            }
+                }
         }
     }
 
-
-}
 

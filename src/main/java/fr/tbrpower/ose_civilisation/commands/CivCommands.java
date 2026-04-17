@@ -384,7 +384,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
             sender.sendMessage("§aSuccessfully deleted area §d" + args[1] + ".§r");
         } else {
-            sender.sendMessage("§eConfirm action using §2/civ confirm§r");
+            sender.sendMessage("§eConfirm action using §2/civ confirm§r§e. Cancel using §2/civ cancel§r");
             confirmationList.add(new PendingConfirmation(PendingAction.REMOVE_AREA, args ,player.getUniqueId()));
         }
     }
@@ -525,7 +525,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             plugin.getConfig().set("teleported-players", sessionUUIDs);
             plugin.saveConfig();
         } else {
-            sender.sendMessage("§eConfirm action using §2/civ confirm§r");
+            sender.sendMessage("§eConfirm action using §2/civ confirm§r§e. Cancel using §2/civ cancel§r");
             confirmationList.add(new PendingConfirmation(PendingAction.START_SESSION, null ,player.getUniqueId()));
         }
     }

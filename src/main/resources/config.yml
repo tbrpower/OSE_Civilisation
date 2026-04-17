@@ -1,5 +1,6 @@
-# If true, player will be able to be revived with the /civ pardonall command
-# If false, player will be banned forever.
+# If true, players will be able to be revived with the /civ pardontemp command
+# If false, players will be banned forever.
+# Pardon perma-banned player using /civ pardonperm
 temp-death: false
 
 # World used by the plugin, leave blank to use world
@@ -9,6 +10,7 @@ world :
 session-started : false
 
 # List all areas.
+# Players must have oseciv.area.<area-name> perm for the tp to work.
 # Correct syntax :
 # area-name :
 #   x1 :
@@ -17,5 +19,6 @@ session-started : false
 #   z2 :
 areas :
 
-# To remember who has already been tp-ed to their area.
+# Lists players who have already been tp-ed to their area.
+# UUID List
 teleported-players :

@@ -1,5 +1,5 @@
 package fr.tbrpower.ose_civilisation;
-import fr.tbrpower.ose_civilisation.commands.CivCommands;
+import fr.tbrpower.ose_civilisation.commands.*;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import net.kyori.adventure.text.Component;
@@ -22,11 +22,30 @@ import java.util.*;
 public class OSE_Civilisation extends JavaPlugin implements  Listener {
 
     public CivCommands civCommands;
+    public CivUtils civUtils;
+    public CivAreas civAreas;
+    public CivBans civBans;
+    public CivSessions civSessions;
 
     public final Set<UUID> frozen = new HashSet<>();
 
     public Set<UUID> getFrozen() {
         return frozen;
+    }
+
+    public enum BanReasons{
+        TEMP_DEATH("nonPermDeath"),
+        PERM_DEATH("permDeath");
+
+        private final String banReason;
+
+        BanReasons(String banReason) {
+            this.banReason = banReason;
+        }
+
+        public String getReason() {
+            return banReason;
+        }
     }
 
     Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
@@ -71,8 +90,15 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");
 
         this.civCommands = new CivCommands(this);
+        this.civUtils = new CivUtils(this);
+        this.civAreas = new CivAreas(this);
+        this.civBans  = new CivBans(this);
+        this.civSessions = new CivSessions(this);
         getCommand("civ").setExecutor(civCommands);
         getCommand("civ").setTabCompleter(civCommands);
+
+        Freeze freeze = new Freeze(this);
+        getServer().getPluginManager().registerEvents(freeze, this);
     }
 
     @EventHandler
@@ -84,7 +110,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         String playerName = event.getEntity().getName();
         if (event.getEntity().getAddress() == null) return;
 
-        if (tempDeath) {deathSource = "nonPermDeath"; message = messageday1;} else {deathSource = "permDeath"; message = messageNormal;}
+        if (tempDeath) {deathSource = BanReasons.TEMP_DEATH.getReason(); message = messageday1;} else {deathSource = BanReasons.PERM_DEATH.getReason(); message = messageNormal;}
 
         if (! event.getPlayer().hasPermission("oseciv.bypass")) {
 
@@ -122,7 +148,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         Component message = messageNormal;
 
         if (ipentry != null) {
-            if (ipentry.getSource().equals("nonPermDeath")) {message = messageday1;} else if (ipentry.getSource().equals("permDeath")) { message = messageNormal;}
+            if (ipentry.getSource().equals(BanReasons.TEMP_DEATH.getReason())) {message = messageday1;} else if (ipentry.getSource().equals(BanReasons.PERM_DEATH.getReason())) { message = messageNormal;}
         }
         if (ipBanList.isBanned(ip)) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
@@ -132,7 +158,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
     }
 
     @EventHandler
-    public void onLogin(PlayerLoginEvent event) {
+    public void onPlayerLogin(PlayerLoginEvent event) {
         if (event.getPlayer().hasPermission("oseciv.bypass")) {
             return;
         }
@@ -151,7 +177,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         for (String name : areaNames) {
             String permission = "oseciv.area." + name;
             if (event.getPlayer().hasPermission(permission)) {
-                civCommands.tpPlayer(event.getPlayer(), name);
+                civSessions.tpPlayer(event.getPlayer(), name);
                 break;
             } else {
                 getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");

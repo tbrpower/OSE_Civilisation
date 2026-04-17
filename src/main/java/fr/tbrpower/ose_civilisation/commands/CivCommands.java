@@ -15,6 +15,7 @@ import org.bukkit.command.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -444,9 +445,15 @@ public class CivCommands implements CommandExecutor, TabCompleter {
                 if (success) {
                     plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
 
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10*20, 0, false, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 5*20, 0, false, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120*20, 0, true, true, false));
+                    freeze5s(player);
+
+                    player.getWorld().strikeLightningEffect(player.getLocation());
+
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 15*20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 10*20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120*20, 1, true, true, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30*20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30*20, 0, false, false, false));
 
                     player.sendTitle("§6"+area.substring(0,1).toUpperCase()+area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5*20, 20*20);
                 } else {
@@ -616,6 +623,16 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             sender.sendMessage("§cNo actions to cancel !");
         }
     }
+
+    public void freeze5s(Player player) {
+        plugin.getFrozen().add(player.getUniqueId());
+        player.setFreezeTicks(5*20);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getFrozen().remove(player.getUniqueId());
+        }, 20L*5);
+    }
+
     }
 
 

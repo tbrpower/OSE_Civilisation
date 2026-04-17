@@ -16,14 +16,18 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 
 public class OSE_Civilisation extends JavaPlugin implements  Listener {
 
-    private CivCommands civCommands;
+    public CivCommands civCommands;
+
+    public final Set<UUID> frozen = new HashSet<>();
+
+    public Set<UUID> getFrozen() {
+        return frozen;
+    }
 
     Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
            <red><bold>Vous avez été tué !</bold></red>

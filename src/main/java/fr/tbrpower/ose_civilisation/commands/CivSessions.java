@@ -147,6 +147,8 @@ public class CivSessions {
             List<Player> players = new ArrayList<>(onlinePlayers);
 
             for (Player p : players) {
+                if (p.hasPermission("oseciv.bypass")) return;
+
                 for (String name : areaNames) {
                     String permission = "oseciv.area." + name;
                     if (p.hasPermission(permission)) {

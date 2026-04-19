@@ -9,9 +9,16 @@ commands:
   civ :
     description : Main plugin command
     usage : /civ <action>
-    permission : civcde.admin
+    permission : oseciv.admin
 
 permissions:
-  civde.bypass:
+  oseciv.bypass:
     description: ignores death check
     default: false
+
+  oseciv.area. :
+    description: add area name to tp player, use syntax "oseciv.area.<name>"
+    default: false
+
+    oseciv.admin :
+      description : Allows every command in the plugin, only give to trusted players.

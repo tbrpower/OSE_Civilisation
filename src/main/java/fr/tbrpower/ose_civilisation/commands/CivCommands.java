@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 
 public class CivCommands implements CommandExecutor, TabCompleter {
@@ -28,8 +29,6 @@ public class CivCommands implements CommandExecutor, TabCompleter {
         this.civAreas = civAreas;
         this.civSessions = civSessions;
     }
-
-    private Set<String> sessionUUIDs = new HashSet<>();
 
 
 
@@ -75,8 +74,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return List.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "cancelsession", "reload", "confirm", "cancel")
-                    .stream()
+            return Stream.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "cancelsession", "reload", "confirm", "cancel")
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
         }

@@ -35,8 +35,6 @@ public class Freeze implements Listener {
         plugin.getFrozen().add(player.getUniqueId());
         player.setFreezeTicks(5*20);
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            plugin.getFrozen().remove(player.getUniqueId());
-        }, 20L*5);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> plugin.getFrozen().remove(player.getUniqueId()), 20L*5);
     }
 }

@@ -1,7 +1,6 @@
 package fr.tbrpower.ose_civilisation.commands;
 
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
-import fr.tbrpower.ose_civilisation.commands.CivUtils.PendingConfirmation;
 import fr.tbrpower.ose_civilisation.commands.CivUtils.PendingAction;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -18,11 +17,11 @@ import java.util.ArrayList;
 
 public class CivBans {
 
-    public CivUtils civUtils;
 
     private final OSE_Civilisation plugin;
+    private final CivUtils civUtils;
 
-    public CivBans(OSE_Civilisation plugin) { this.plugin = plugin;}
+    public CivBans(OSE_Civilisation plugin, CivUtils civUtils) { this.plugin = plugin; this.civUtils = civUtils;}
 
     public  void unbanPlayersWithReason(CommandSender sender, String banReason, Boolean confirmed) {
         if (!confirmed) {

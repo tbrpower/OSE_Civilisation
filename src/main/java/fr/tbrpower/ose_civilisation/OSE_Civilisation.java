@@ -1,3 +1,6 @@
+// ONLY $U$ EVENTS
+// https://discord.gg/aBZwDmQrBE
+
 package fr.tbrpower.ose_civilisation;
 import fr.tbrpower.ose_civilisation.commands.*;
 
@@ -6,13 +9,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.ban.ProfileBanList;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventHandler;
 
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
@@ -26,6 +27,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
     public CivAreas civAreas;
     public CivBans civBans;
     public CivSessions civSessions;
+    public Freeze freeze;
 
     public final Set<UUID> frozen = new HashSet<>();
 
@@ -89,11 +91,14 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");
 
-        this.civCommands = new CivCommands(this);
+        this.freeze = new Freeze(this);
         this.civUtils = new CivUtils(this);
-        this.civAreas = new CivAreas(this);
-        this.civBans  = new CivBans(this);
-        this.civSessions = new CivSessions(this);
+        this.civAreas = new CivAreas(this, civUtils);
+        this.civBans  = new CivBans(this, civUtils);
+        this.civSessions = new CivSessions(this, civUtils, freeze);
+
+        this.civCommands = new CivCommands(this, civBans, civUtils, civAreas, civSessions);
+
         getCommand("civ").setExecutor(civCommands);
         getCommand("civ").setTabCompleter(civCommands);
 
@@ -157,34 +162,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerLogin(PlayerLoginEvent event) {
-        if (event.getPlayer().hasPermission("oseciv.bypass")) {
-            return;
-        }
-        ConfigurationSection areasSection = getConfig().getConfigurationSection("areas");
-        if (areasSection == null) {
-            getLogger().warning("[OSE_Civilisation] No areas config found");
-            return;
-        }
-        Set<String> areaNames = areasSection.getKeys(false);
 
-        if (getConfig().getStringList("teleported-players").contains(event.getPlayer().getUniqueId().toString())) {
-            getLogger().info("§7Player " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has already been telported.");
-            return;
-        }
-
-        for (String name : areaNames) {
-            String permission = "oseciv.area." + name;
-            if (event.getPlayer().hasPermission(permission)) {
-                civSessions.tpPlayer(event.getPlayer(), name);
-                break;
-            } else {
-                getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
-                break;
-            }
-        }
-    }
 
 
 

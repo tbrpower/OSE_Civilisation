@@ -14,13 +14,7 @@ public class CivUtils {
 
     public CivUtils(OSE_Civilisation plugin) { this.plugin = plugin;}
 
-    public CivBans civBans;
-
-    public CivAreas civAreas;
-
-    public CivSessions civSessions;
-
-    public String confirmRequestMessage = "§c%lWARNING : ACTION CANNOT BE REVERTED§r\n§eConfirm action using §2/civ confirm§r§e. Cancel using §2/civ cancel§r";
+    public String confirmRequestMessage = "§c§lWARNING : ACTION CANNOT BE REVERTED§r\n§eConfirm action using §2/civ confirm§r§e. Cancel using §2/civ cancel§r";
 
     public enum PendingAction {
         START_SESSION,
@@ -43,7 +37,7 @@ public class CivUtils {
 
     public final List<CivUtils.PendingConfirmation> confirmationList = new ArrayList<CivUtils.PendingConfirmation>();
 
-    public void confirm(CommandSender sender) {
+    public void confirm(CommandSender sender, CivBans civBans, CivAreas civAreas, CivSessions civSessions) {
         UUID senderUUID;
 
         Boolean playerHasAction = false;
@@ -66,19 +60,23 @@ public class CivUtils {
                 playerHasAction = true;
                 switch (confirmation.action) {
                     case CANCEL_SESSION -> {
-                        civSessions.cancelSession(sender, true); iterator.remove();
+                        civSessions.cancelSession(sender, true);
+                        iterator.remove();
                     }
                     case START_SESSION -> {
                         civSessions.startSession(sender, true);
                         iterator.remove();
                     }
                     case REMOVE_AREA -> {
-                        String[] args = (String[])confirmation.data;
-                        civAreas.removeArea(sender, args, true);
+                        if (confirmation.data instanceof String[] args) {
+                            civAreas.removeArea(sender, args, true);
+                        }
                         iterator.remove();
                     }
                     case REVIVE_PLAYERS -> {
-                        civBans.unbanPlayersWithReason(sender, confirmation.data.toString(), true);
+                        if (confirmation.data instanceof String reason) {
+                            civBans.unbanPlayersWithReason(sender, reason, true);
+                        }
                         iterator.remove();
                     }
                 }

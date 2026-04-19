@@ -1,19 +1,15 @@
 package fr.tbrpower.ose_civilisation.commands;
 
-import fr.tbrpower.ose_civilisation.commands.CivUtils.PendingConfirmation;
 import fr.tbrpower.ose_civilisation.commands.CivUtils.PendingAction;
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CivAreas {
-    public CivUtils civUtils;
-
-
-
     private final OSE_Civilisation plugin;
+    private final CivUtils civUtils;
 
-    public CivAreas(OSE_Civilisation plugin) {this.plugin = plugin;}
+    public CivAreas(OSE_Civilisation plugin, CivUtils civUtils) {this.plugin = plugin; this.civUtils = civUtils;}
 
     public void newArea(CommandSender sender, String[] args) {
         if (args.length == 1) {

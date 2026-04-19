@@ -3,16 +3,9 @@ package fr.tbrpower.ose_civilisation.commands;
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 
 import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 
 import org.bukkit.command.*;
-import org.bukkit.configuration.ConfigurationSection;
 
-import org.bukkit.entity.Player;
-
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,17 +16,21 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
 
     private final OSE_Civilisation plugin;
-    public CivCommands(OSE_Civilisation plugin) { this.plugin = plugin;}
+    private final CivBans civBans;          // private final
+    private final CivUtils civUtils;
+    private final CivAreas civAreas;
+    private final CivSessions civSessions;
+
+    public CivCommands(OSE_Civilisation plugin, CivBans civBans, CivUtils civUtils, CivAreas civAreas, CivSessions civSessions) {
+        this.plugin = plugin;
+        this.civBans = civBans;
+        this.civUtils = civUtils;
+        this.civAreas = civAreas;
+        this.civSessions = civSessions;
+    }
 
     private Set<String> sessionUUIDs = new HashSet<>();
 
-    public CivBans civBans;
-
-    public CivUtils civUtils;
-
-    public CivAreas civAreas;
-
-    public CivSessions civSessions;
 
 
     @Override
@@ -63,7 +60,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "cancelsession" -> civSessions.cancelSession(sender);
 
             // CivUtils
-            case "confirm" -> civUtils.confirm(sender);
+            case "confirm" -> civUtils.confirm(sender, civBans, civAreas, civSessions);
             case "cancel" -> civUtils.cancel(sender);
             case "reload" -> civUtils.reload(sender);
 

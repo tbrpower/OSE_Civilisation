@@ -1,7 +1,6 @@
 package fr.tbrpower.ose_civilisation.commands;
 
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
-import fr.tbrpower.ose_civilisation.commands.CivUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,19 +10,25 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
 public class CivSessions {
-    private OSE_Civilisation plugin;
+    private final OSE_Civilisation plugin;
 
-    public CivUtils civUtils;
+    private final CivUtils civUtils;
 
-    public Freeze freeze;
+    private final Freeze freeze;
 
-    public CivSessions(OSE_Civilisation plugin) {this.plugin = plugin;}
+    public CivSessions(OSE_Civilisation plugin, CivUtils civUtils, Freeze freeze) {
+        this.plugin = plugin;
+        this.civUtils = civUtils;
+        this.freeze = freeze;
+    }
 
     private Set<String> sessionUUIDs = new HashSet<>();
 
@@ -77,19 +82,22 @@ public class CivSessions {
 
             player.teleportAsync(loc).thenAccept(success -> {
                 if (success) {
-                    plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
 
-                    freeze.freeze5s(player);
+                        freeze.freeze5s(player);
 
-                    player.getWorld().strikeLightningEffect(player.getLocation());
+                        player.getWorld().strikeLightningEffect(player.getLocation());
 
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 15*20, 0, false, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 10*20, 0, false, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120*20, 1, true, true, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30*20, 0, false, false, false));
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30*20, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 10 * 20, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120 * 20, 1, true, true, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30 * 20, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30 * 20, 0, false, false, false));
 
-                    player.sendTitle("§6"+area.substring(0,1).toUpperCase()+area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5*20, 20*20);
+                        player.sendTitle("§6" + area.substring(0, 1).toUpperCase() + area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5 * 20, 20 * 20);
+                    });
+
                 } else {
                     plugin.getLogger().warning("[OSE_Civilisation] Failed teleporting user " + player.getName() + "(" + player.getUniqueId().toString() + ")");
                 }
@@ -101,7 +109,6 @@ public class CivSessions {
                 plugin.saveConfig();
             }
             return true;
-            //  Tom horror.z0 = faux Jola
         }
         return false;
     }
@@ -157,8 +164,8 @@ public class CivSessions {
             plugin.getConfig().set("teleported-players", sessionUUIDs);
             plugin.saveConfig();
         } else {
-            sender.sendMessage("§eConfirm action using §2/civ confirm§r§e. Cancel using §2/civ cancel§r");
-            civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.START_SESSION, null ,player.getUniqueId()));
+            sender.sendMessage(civUtils.confirmRequestMessage);
+            civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.START_SESSION, null, player.getUniqueId()));
         }
     }
 
@@ -180,8 +187,8 @@ public class CivSessions {
                 plugin.reloadConfig();
                 sender.sendMessage("§aSession cancelled !");
             } else {
-                sender.sendMessage("§eConfirm action using §2/civ confirm§r");
-                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.CANCEL_SESSION, null ,player.getUniqueId()));
+                sender.sendMessage(civUtils.confirmRequestMessage);
+                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.CANCEL_SESSION, null, player.getUniqueId()));
             }
         } else {
             sender.sendMessage("§cSession not active§r");
@@ -190,5 +197,33 @@ public class CivSessions {
 
     public void cancelSession(CommandSender sender) {
         cancelSession(sender, false);
+    }
+
+    @EventHandler
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        if (event.getPlayer().hasPermission("oseciv.bypass")) {
+            return;
+        }
+        ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
+        if (areasSection == null) {
+            plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
+            return;
+        }
+        Set<String> areaNames = areasSection.getKeys(false);
+
+        if (plugin.getConfig().getStringList("teleported-players").contains(event.getPlayer().getUniqueId().toString())) {
+            plugin.getLogger().info("§7Player " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has already been telported.");
+            return;
+        }
+
+        for (String name : areaNames) {
+            String permission = "oseciv.area." + name;
+            if (event.getPlayer().hasPermission(permission)) {
+                tpPlayer(event.getPlayer(), name);
+                return;
+            }
+        }
+        plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
+
     }
 }

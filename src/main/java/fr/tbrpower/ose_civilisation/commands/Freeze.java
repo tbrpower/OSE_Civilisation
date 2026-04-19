@@ -16,6 +16,7 @@ public class Freeze implements Listener {
         this.plugin = plugin;
     }
 
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();

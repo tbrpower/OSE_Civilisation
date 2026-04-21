@@ -75,7 +75,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Stream.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "cancelsession", "reload", "confirm", "cancel")
+            return Stream.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggle", "info", "newarea", "rmarea", "setpos", "startsession", "cancelsession", "reload", "confirm", "cancel", "pausesession")
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
         }

@@ -47,7 +47,6 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "listtemp" -> civBans.dumpBannedPlayersWithReason(sender, OSE_Civilisation.BanReasons.TEMP_DEATH.getReason());
             case "listperm" -> civBans.dumpBannedPlayersWithReason(sender, OSE_Civilisation.BanReasons.PERM_DEATH.getReason());
             case "toggle" -> civBans.toggleTempDeath(sender);
-            case "info" -> civBans.civInfo(sender);
 
             // CivAreas
             case "newarea" -> civAreas.newArea(sender, args);
@@ -63,6 +62,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "confirm" -> civUtils.confirm(sender, civBans, civAreas, civSessions);
             case "cancel" -> civUtils.cancel(sender);
             case "reload" -> civUtils.reload(sender);
+            case "info" -> civUtils.civInfo(sender);
 
             // DEFAULT
             default -> sender.sendMessage("§cUnknown subcommand.");

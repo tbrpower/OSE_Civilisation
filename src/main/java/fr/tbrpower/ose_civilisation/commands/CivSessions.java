@@ -148,6 +148,7 @@ public class CivSessions implements Listener {
 
         if (confirmed) {
             plugin.getConfig().set("session-started", true);
+            plugin.getConfig().set("session-paused", false);
             plugin.saveConfig();
 
             ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
@@ -202,6 +203,7 @@ public class CivSessions implements Listener {
         if (plugin.getConfig().getBoolean("session-started")) {
             if (confirmed) {
                 plugin.getConfig().set("session-started", false);
+                plugin.getConfig().set("session-paused", false);
                 plugin.getConfig().set("teleported-players", new ArrayList<String>());
                 plugin.saveConfig();
                 plugin.reloadConfig();
@@ -223,28 +225,31 @@ public class CivSessions implements Listener {
         if (!(sender instanceof Player player)) {
             return;
         }
+        if (plugin.getConfig().getBoolean("session-started")) {
+            if (confirmed) {
+                if (plugin.getConfig().getBoolean("session-paused")) {
+                    plugin.getConfig().set("session-paused", false);
+                    plugin.saveConfig();
 
-        if (confirmed) {
-            if (plugin.getConfig().getBoolean("session-paused")) {
-                plugin.getConfig().set("session-paused", false);
-                plugin.saveConfig();
+                    sender.sendMessage("§a§lSession unpaused ! §aPlayers can now join !§r");
+                } else {
+                    plugin.getConfig().set("session-paused", true);
+                    plugin.saveConfig();
+                    Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+                    List<Player> players = new ArrayList<>(onlinePlayers);
 
-                sender.sendMessage("§a§lSession unpaused ! §aPlayers can now join !§r");
-            } else {
-                plugin.getConfig().set("session-paused", true);
-
-                Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
-                List<Player> players = new ArrayList<>(onlinePlayers);
-
-                players.stream()
+                    players.stream()
                         .filter(p -> p.hasPermission("oseciv.bypass"))
                         .forEach(p -> p.kick(sessionPausedMessage, PlayerKickEvent.Cause.valueOf("sessionPause")));
 
-                sender.sendMessage("§a§lSession paused ! §aAll players were kicked !§r");
-            }
-        } else {
+                    sender.sendMessage("§a§lSession paused ! §aAll players were kicked !§r");
+                }
+            } else {
             sender.sendMessage(civUtils.confirmRequestMessage);
             civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.PAUSE_SESSION, null, player.getUniqueId()));
+            }
+        } else {
+            sender.sendMessage("§cSession is not started !§r");
         }
     }
 
@@ -281,7 +286,8 @@ public class CivSessions implements Listener {
 
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
-        if (plugin.getConfig().getBoolean("session-paused") && ! event.getPlayer().hasPermission("oseciv.bypass")) {
+        if (plugin.getConfig().getBoolean("session-paused")
+                && !event.getPlayer().hasPermission("oseciv.bypass")) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, sessionPausedMessage);
         }
     }

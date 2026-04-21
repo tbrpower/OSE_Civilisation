@@ -101,8 +101,4 @@ public class CivBans {
         sender.sendMessage("Temporary death is now set to : "+ plugin.getConfig().getBoolean("temp-death"));
     }
 
-    public void civInfo(CommandSender sender) {
-        sender.sendMessage("§fTemporary death is currently set to: "+ plugin.getConfig().getBoolean("temp-death"));
-        sender.sendMessage("§fSession is active : "+ plugin.getConfig().getBoolean("session-started"));
-    }
 }

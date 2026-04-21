@@ -20,7 +20,8 @@ public class CivUtils {
         START_SESSION,
         CANCEL_SESSION,
         REMOVE_AREA,
-        REVIVE_PLAYERS
+        REVIVE_PLAYERS,
+        PAUSE_SESSION
     }
 
     public class PendingConfirmation{
@@ -77,6 +78,10 @@ public class CivUtils {
                         if (confirmation.data instanceof String reason) {
                             civBans.unbanPlayersWithReason(sender, reason, true);
                         }
+                        iterator.remove();
+                    }
+                    case PAUSE_SESSION -> {
+                        civSessions.pauseSession(sender, true);
                         iterator.remove();
                     }
                 }

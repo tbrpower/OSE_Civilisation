@@ -57,6 +57,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             // CivSessions
             case "startsession" -> civSessions.startSession(sender);
             case "cancelsession" -> civSessions.cancelSession(sender);
+            case "pausesession" -> civSessions.pauseSession(sender);
 
             // CivUtils
             case "confirm" -> civUtils.confirm(sender, civBans, civAreas, civSessions);

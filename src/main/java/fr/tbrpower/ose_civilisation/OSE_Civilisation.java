@@ -85,6 +85,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         getConfig().addDefault("session-started", false);
         getConfig().addDefault("areas", new HashMap<String, Object>());
         getConfig().addDefault("teleported-players", new ArrayList<String>());
+        getConfig().addDefault("session-paused", false);
 
         getConfig().options().copyDefaults(true);
         saveConfig();

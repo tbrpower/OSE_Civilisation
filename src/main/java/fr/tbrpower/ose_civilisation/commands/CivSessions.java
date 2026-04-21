@@ -1,6 +1,8 @@
 package fr.tbrpower.ose_civilisation.commands;
 
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +14,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -19,6 +22,20 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.*;
 
 public class CivSessions implements Listener {
+
+    Component sessionPausedMessage = (Component) MiniMessage.miniMessage().deserialize("""
+            <red><bold>L'événement est en pause !</bold></red>
+            \s
+            \s
+            <white>Revenez demain à 20h !
+            \s
+            Faites une pause pedant ce temps là, allez toucher de l'herbe :)
+            \s
+            </white>
+            \s
+            """
+    );
+
     private final OSE_Civilisation plugin;
 
     private final CivUtils civUtils;
@@ -202,6 +219,39 @@ public class CivSessions implements Listener {
         cancelSession(sender, false);
     }
 
+    public void pauseSession(CommandSender sender, Boolean confirmed) {
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        if (confirmed) {
+            if (plugin.getConfig().getBoolean("session-paused")) {
+                plugin.getConfig().set("session-paused", false);
+                plugin.saveConfig();
+
+                sender.sendMessage("§a§lSession unpaused ! §aPlayers can now join !§r");
+            } else {
+                plugin.getConfig().set("session-paused", true);
+
+                Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
+                List<Player> players = new ArrayList<>(onlinePlayers);
+
+                players.stream()
+                        .filter(p -> p.hasPermission("oseciv.bypass"))
+                        .forEach(p -> p.kick(sessionPausedMessage, PlayerKickEvent.Cause.valueOf("sessionPause")));
+
+                sender.sendMessage("§a§lSession paused ! §aAll players were kicked !§r");
+            }
+        } else {
+            sender.sendMessage(civUtils.confirmRequestMessage);
+            civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.PAUSE_SESSION, null, player.getUniqueId()));
+        }
+    }
+
+    public void pauseSession(CommandSender sender) {
+        pauseSession(sender, false);
+    }
+
     @EventHandler
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (event.getPlayer().hasPermission("oseciv.bypass")) {
@@ -227,6 +277,12 @@ public class CivSessions implements Listener {
             }
         }
         plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
+    }
 
+    @EventHandler
+    public void onLogin(PlayerLoginEvent event) {
+        if (plugin.getConfig().getBoolean("session-paused") && ! event.getPlayer().hasPermission("oseciv.bypass")) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, sessionPausedMessage);
+        }
     }
 }

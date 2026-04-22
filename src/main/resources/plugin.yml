@@ -13,8 +13,8 @@ commands:
 
 permissions:
   oseciv.bypass:
-    description: ignores death check
-    default: false
+    description: ignores death check and kick
+    default: op
 
   oseciv.area. :
     description: add area name to tp player, use syntax "oseciv.area.<name>"
@@ -22,3 +22,4 @@ permissions:
 
     oseciv.admin :
       description : Allows every command in the plugin, only give to trusted players.
+      default : false

@@ -3,6 +3,7 @@ package fr.tbrpower.ose_civilisation.commands;
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.apache.maven.model.PluginConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -11,6 +12,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -108,7 +110,6 @@ public class CivSessions implements Listener {
                         player.getWorld().strikeLightningEffect(player.getLocation());
 
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false, false));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 10 * 20, 0, false, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120 * 20, 1, true, true, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30 * 20, 0, false, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30 * 20, 0, false, false, false));
@@ -221,33 +222,33 @@ public class CivSessions implements Listener {
         cancelSession(sender, false);
     }
 
-    public void pauseSession(CommandSender sender, Boolean confirmed) {
+    public void pauseSession(CommandSender sender, boolean confirmed) {
+        FileConfiguration config = plugin.getConfig();
         if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cCannot pause session as CONSOLE§r");
             return;
         }
-        if (plugin.getConfig().getBoolean("session-started")) {
+        if (config.getBoolean("session-started")) {
             if (confirmed) {
-                if (plugin.getConfig().getBoolean("session-paused")) {
-                    plugin.getConfig().set("session-paused", false);
+                if (config.getBoolean("session-paused")) {
+                    config.set("session-paused", false);
                     plugin.saveConfig();
 
                     sender.sendMessage("§a§lSession unpaused ! §aPlayers can now join !§r");
                 } else {
-                    plugin.getConfig().set("session-paused", true);
+                    config.set("session-paused", true);
                     plugin.saveConfig();
-                    Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
-                    List<Player> players = new ArrayList<>(onlinePlayers);
 
-                    players.stream()
-                        .filter(p -> p.hasPermission("oseciv.bypass"))
-                        .forEach(p -> p.kick(sessionPausedMessage, PlayerKickEvent.Cause.valueOf("sessionPause")));
+                    new ArrayList<>(Bukkit.getOnlinePlayers()).stream()
+                        .filter(p -> !p.hasPermission("oseciv.bypass"))
+                        .forEach(p -> p.kick(sessionPausedMessage, PlayerKickEvent.Cause.PLUGIN));
 
                     sender.sendMessage("§a§lSession paused ! §aAll players were kicked !§r");
                 }
             } else {
-            sender.sendMessage(civUtils.confirmRequestMessage);
-            civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.PAUSE_SESSION, null, player.getUniqueId()));
-            }
+                sender.sendMessage(civUtils.confirmRequestMessage);
+                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.PAUSE_SESSION, null, player.getUniqueId()));
+              }
         } else {
             sender.sendMessage("§cSession is not started !§r");
         }
@@ -262,6 +263,12 @@ public class CivSessions implements Listener {
         if (event.getPlayer().hasPermission("oseciv.bypass")) {
             return;
         }
+
+        if (plugin.getConfig().getBoolean("session-paused")) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, sessionPausedMessage);
+            return;
+        }
+
         ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
         if (areasSection == null) {
             plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
@@ -284,11 +291,4 @@ public class CivSessions implements Listener {
         plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
     }
 
-    @EventHandler
-    public void onLogin(PlayerLoginEvent event) {
-        if (plugin.getConfig().getBoolean("session-paused")
-                && !event.getPlayer().hasPermission("oseciv.bypass")) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, sessionPausedMessage);
-        }
-    }
 }

@@ -97,6 +97,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         this.civAreas = new CivAreas(this, civUtils);
         this.civBans  = new CivBans(this, civUtils);
         this.civSessions = new CivSessions(this, civUtils, freeze);
+        getServer().getPluginManager().registerEvents(civSessions, this);
 
         this.civCommands = new CivCommands(this, civBans, civUtils, civAreas, civSessions);
 

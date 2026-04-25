@@ -3,7 +3,8 @@ version: 0.2
 main: fr.tbrpower.ose_civilisation.OSE_Civilisation
 api-version: 1.21
 author: TbrPower
-description: Brr Brr le patapim du joueur
+description: "Utility plugin for for easier management of Civilization events. Made by TbrPower for ONLY $U$ Events "
+
 
 commands:
   civ :

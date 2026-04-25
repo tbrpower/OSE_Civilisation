@@ -1,6 +1,7 @@
 # If true, players will be able to be revived with the /civ pardontemp command
 # If false, players will be banned forever.
-# Pardon perma-banned player using /civ pardonperm
+# Pardon perma-banned players using /civ pardonperm
+# Pardon temp-banned players using /civ pardontemp
 temp-death: false
 
 # World used by the plugin, leave blank to use world
@@ -8,6 +9,9 @@ world :
 
 # Will tp players to their island if true.
 session-started : false
+
+# Players cannot join when session is paused.
+session-paused : false
 
 # List all areas.
 # Players must have oseciv.area.<area-name> perm for the tp to work.

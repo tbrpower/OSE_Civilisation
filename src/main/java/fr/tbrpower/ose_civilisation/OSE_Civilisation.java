@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.*;
 import org.bukkit.ban.ProfileBanList;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 
 import org.bukkit.event.Listener;
@@ -81,13 +82,54 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         saveDefaultConfig();
 
         getConfig().addDefault("temp-death", false);
-        getConfig().addDefault("world", null);
+        getConfig().addDefault("world", "");
         getConfig().addDefault("session-started", false);
+        getConfig().addDefault("session-paused", false);
         getConfig().addDefault("areas", new HashMap<String, Object>());
         getConfig().addDefault("teleported-players", new ArrayList<String>());
-        getConfig().addDefault("session-paused", false);
 
         getConfig().options().copyDefaults(true);
+
+        // === COMMENTAIRES (version qui marche) ===
+        YamlConfiguration config = (YamlConfiguration) getConfig();
+
+        config.setComments("temp-death", List.of(
+                "If true, players will be able to be revived with the /civ pardontemp command",
+                "If false, players will be banned forever.",
+                "Pardon perma-banned players using /civ pardonperm",
+                "Pardon temp-banned players using /civ pardontemp"
+        ));
+
+        config.setComments("world", List.of(
+                "World used by the plugin, leave blank to use default world"
+        ));
+
+        config.setComments("session-started", List.of(
+                "Will tp players to their area if true.",
+                "Set to false to pause the session"
+        ));
+
+        config.setComments("session-paused", List.of(
+                "Players cannot join when session is paused."
+        ));
+
+        config.setComments("areas", List.of(
+                "List all areas.",
+                "Players must have oseciv.area.<area-name> permission for the tp to work.",
+                "",
+                "Correct syntax:",
+                "area-name:",
+                "  x1:",
+                "  z1:",
+                "  x2:",
+                "  z2:"
+        ));
+
+        config.setComments("teleported-players", List.of(
+                "Lists players who have already been tp-ed to their area.",
+                "UUID List - Do not edit manually"
+        ));
+
         saveConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
         getLogger().info("[OSE_Civilisation] Plugin civilisation activé !");

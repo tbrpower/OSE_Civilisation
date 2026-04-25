@@ -90,7 +90,6 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
 
         getConfig().options().copyDefaults(true);
 
-        // === COMMENTAIRES (version qui marche) ===
         YamlConfiguration config = (YamlConfiguration) getConfig();
 
         config.setComments("temp-death", List.of(

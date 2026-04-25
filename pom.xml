@@ -4,7 +4,7 @@
 
   <groupId>fr.example</groupId>
   <artifactId>OSE_Civilisation</artifactId>
-  <version>1.O</version>
+  <version>1.0</version>
   <packaging>jar</packaging>
 
   <name>OSE_Civilisation</name>

@@ -163,11 +163,11 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         if (! event.getPlayer().hasPermission("oseciv.bypass")) {
 
 
-            event.getEntity().banIp(deathSource, //Ban message
-                    (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
-                    deathSource, //Source of Ban
-                    false //Kick on ban
-            );
+//            event.getEntity().banIp(deathSource, //Ban message
+//                    (Duration) null, //Ban Duration, duration for test Instant.now().plus(Duration.ofSeconds(60))
+//                    deathSource, //Source of Ban
+//                    false //Kick on ban
+//            );
 
             event.getEntity().ban(deathSource,
                     (Duration) null,

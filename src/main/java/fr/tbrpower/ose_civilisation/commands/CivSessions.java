@@ -190,7 +190,7 @@ public class CivSessions implements Listener {
             List<Player> players = new ArrayList<>(onlinePlayers);
 
             for (Player p : players) {
-                if (p.hasPermission("oseciv.bypass")) return;
+                if (p.hasPermission("oseciv.bypass")) continue;
 
                 for (String name : areaNames) {
                     String permission = "oseciv.area." + name;

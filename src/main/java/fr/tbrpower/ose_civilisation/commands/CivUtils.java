@@ -39,14 +39,16 @@ public class CivUtils {
     public final List<CivUtils.PendingConfirmation> confirmationList = new ArrayList<CivUtils.PendingConfirmation>();
 
     public void confirm(CommandSender sender, CivBans civBans, CivAreas civAreas, CivSessions civSessions) {
+        boolean playerHasAction = false;
+
+        // senderUUID
         UUID senderUUID;
-
-        Boolean playerHasAction = false;
-
         if (sender instanceof Player player) {
             senderUUID = player.getUniqueId();
-        } else {
-            return;
+        }
+        else {
+            // If sender is CONSOLE
+            senderUUID = new UUID(0,0);
         }
 
         if (confirmationList.isEmpty()) {
@@ -94,14 +96,17 @@ public class CivUtils {
     }
 
     public void cancel(CommandSender sender) {
-        UUID senderUUID;
 
         Boolean playerHasAction = false;
 
+        // senderUUID
+        UUID senderUUID;
         if (sender instanceof Player player) {
             senderUUID = player.getUniqueId();
-        } else {
-            return;
+        }
+        else {
+            // If sender is CONSOLE
+            senderUUID = new UUID(0,0);
         }
 
         if (confirmationList.isEmpty()) {

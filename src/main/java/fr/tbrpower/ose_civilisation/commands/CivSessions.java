@@ -143,9 +143,14 @@ public class CivSessions implements Listener {
             return;
         }
 
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCannot start session as CONSOLE§r");
-            return;
+        // senderUUID
+        UUID senderUUID;
+        if (sender instanceof Player player) {
+            senderUUID = player.getUniqueId();
+        }
+        else {
+            // If sender is CONSOLE
+            senderUUID = new UUID(0,0);
         }
 
         if (confirmed) {
@@ -205,7 +210,7 @@ public class CivSessions implements Listener {
             plugin.saveConfig();
         } else {
             sender.sendMessage(civUtils.confirmRequestMessage);
-            civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.START_SESSION, null, player.getUniqueId()));
+            civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.START_SESSION, null, senderUUID));
         }
     }
 
@@ -215,8 +220,14 @@ public class CivSessions implements Listener {
 
     public void cancelSession(CommandSender sender, Boolean confirmed) {
 
-        if (!(sender instanceof Player player)) {
-            return;
+        // senderUUID
+        UUID senderUUID;
+        if (sender instanceof Player player) {
+            senderUUID = player.getUniqueId();
+        }
+        else {
+            // If sender is CONSOLE
+            senderUUID = new UUID(0,0);
         }
 
         if (plugin.getConfig().getBoolean("session-started")) {
@@ -229,7 +240,7 @@ public class CivSessions implements Listener {
                 sender.sendMessage("§aSession cancelled !");
             } else {
                 sender.sendMessage(civUtils.confirmRequestMessage);
-                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.CANCEL_SESSION, null, player.getUniqueId()));
+                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.CANCEL_SESSION, null, senderUUID));
             }
         } else {
             sender.sendMessage("§cSession not active§r");
@@ -242,9 +253,14 @@ public class CivSessions implements Listener {
 
     public void pauseSession(CommandSender sender, boolean confirmed) {
         FileConfiguration config = plugin.getConfig();
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCannot pause session as CONSOLE§r");
-            return;
+        // senderUUID
+        UUID senderUUID;
+        if (sender instanceof Player player) {
+            senderUUID = player.getUniqueId();
+        }
+        else {
+            // If sender is CONSOLE
+            senderUUID = new UUID(0,0);
         }
         if (config.getBoolean("session-started")) {
             if (confirmed) {
@@ -265,7 +281,7 @@ public class CivSessions implements Listener {
                 }
             } else {
                 sender.sendMessage(civUtils.confirmRequestMessage);
-                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.PAUSE_SESSION, null, player.getUniqueId()));
+                civUtils.confirmationList.add(civUtils.new PendingConfirmation(CivUtils.PendingAction.PAUSE_SESSION, null, senderUUID));
               }
         } else {
             sender.sendMessage("§cSession is not started !§r");

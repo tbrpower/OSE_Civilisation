@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class CivBans {
 
@@ -26,7 +27,7 @@ public class CivBans {
     public  void unbanPlayersWithReason(CommandSender sender, String banReason, Boolean confirmed) {
         if (!confirmed) {
             ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
-            IpBanList ipBanList = (IpBanList) Bukkit.getBanList(BanList.Type.IP);
+//            IpBanList ipBanList = (IpBanList) Bukkit.getBanList(BanList.Type.IP);
 
             ArrayList<String> revivedPlayers = new ArrayList<String>();
 
@@ -34,16 +35,16 @@ public class CivBans {
                 PlayerProfile target = (PlayerProfile) entry.getBanTarget();
                 if (!(entry.getSource().isEmpty()) && entry.getSource().equals(banReason)) {
                     profileBanList.pardon(target);
-                    ipBanList.pardon(target.getName());
+//                    ipBanList.pardon(target.getName());
                     revivedPlayers.add(target.getName());
                 }
             }
 
-            for (BanEntry<? super InetAddress> entry : ipBanList.getEntries()) {
-                if (!(entry.getSource().isEmpty()) && entry.getSource().equals(banReason)) {
-                    ipBanList.pardon(entry.getTarget());
-                }
-            }
+//            for (BanEntry<? super InetAddress> entry : ipBanList.getEntries()) {
+//                if (!(entry.getSource().isEmpty()) && entry.getSource().equals(banReason)) {
+//                    ipBanList.pardon(entry.getTarget());
+//                }
+//            }
 
             if (revivedPlayers.isEmpty()) {
                 sender.sendMessage("§cNo revivable dead players !§r");
@@ -53,8 +54,17 @@ public class CivBans {
                         : "§aSuccessfully revived" + revivedPlayers.size() + " players !§r");
             }
         } else {
+            // senderUUID
+            UUID senderUUID;
+            if (sender instanceof Player player) {
+                senderUUID = player.getUniqueId();
+            }
+            else {
+                // If sender is CONSOLE
+                senderUUID = new UUID(0,0);
+            }
             sender.sendMessage(civUtils.confirmRequestMessage);
-            civUtils.confirmationList.add(civUtils.new PendingConfirmation(PendingAction.REVIVE_PLAYERS, banReason, ((Player)sender).getUniqueId()));
+            civUtils.confirmationList.add(civUtils.new PendingConfirmation(PendingAction.REVIVE_PLAYERS, banReason, senderUUID));
         }
     }
 

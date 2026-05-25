@@ -31,7 +31,7 @@ public class CivSessions implements Listener {
             \s
             <white>Revenez demain à 20h !
             \s
-            Faites une pause pedant ce temps là, allez toucher de l'herbe :)
+            Faites une pause pendant ce temps là, allez toucher de l'herbe :)
             \s
             </white>
             \s
@@ -112,6 +112,7 @@ public class CivSessions implements Listener {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120 * 20, 1, true, true, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30 * 20, 0, false, false, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 480 * 20, 1, true, true, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30 * 20, 0, false, false, false));
 
                         player.sendTitle("§6" + area.substring(0, 1).toUpperCase() + area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5 * 20, 20 * 20);
@@ -158,6 +159,23 @@ public class CivSessions implements Listener {
                 plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
                 return;
             }
+
+            String configWorld = plugin.getConfig().getString("world");
+
+            World world;
+
+            if (configWorld == null || configWorld.trim().isEmpty()) {
+                world = Bukkit.getWorld("world");
+            } else {
+                world = Bukkit.getWorld(configWorld);
+            }
+
+            if (world == null) {
+                plugin.getLogger().severe("[OSE_Civilisation] No world '" + configWorld + "' found !");
+                return;
+            }
+
+            sender.sendMessage("§eUsing world §f: §e" + world.getName());
 
             Set<String> areaNames = areasSection.getKeys(false);
 

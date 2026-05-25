@@ -103,7 +103,7 @@ public class CivSessions implements Listener {
             player.teleportAsync(loc).thenAccept(success -> {
                 if (success) {
                     Bukkit.getScheduler().runTask(plugin, () -> {
-                        plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() + loc.getBlockY() + loc.getBlockZ());
+                        plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + loc.getBlockX() +' '+ loc.getBlockY() +' '+ loc.getBlockZ());
 
                         freeze.freeze5s(player);
 
@@ -112,7 +112,7 @@ public class CivSessions implements Listener {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120 * 20, 1, true, true, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30 * 20, 0, false, false, false));
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 480 * 20, 1, true, true, false));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 480 * 20, 0, true, true, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30 * 20, 0, false, false, false));
 
                         player.sendTitle("§6" + area.substring(0, 1).toUpperCase() + area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5 * 20, 20 * 20);

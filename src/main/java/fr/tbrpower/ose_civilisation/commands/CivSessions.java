@@ -53,7 +53,7 @@ public class CivSessions implements Listener {
 
     private Set<String> sessionUUIDs = new HashSet<>();
 
-    public boolean tpPlayer(Player player, String area, Boolean start) {
+    public boolean tpPlayer(Player player, String area, Boolean start, boolean teleportOnExecute) {
         String uuid = player.getUniqueId().toString();
         int x1 = plugin.getConfig().getInt("areas." + area + ".x1");
         int z1 = plugin.getConfig().getInt("areas." + area + ".z1");
@@ -135,7 +135,7 @@ public class CivSessions implements Listener {
     }
 
     public boolean tpPlayer(Player player, String area) {
-        return tpPlayer(player, area, false);
+        return tpPlayer(player, area, false, true);
     }
 
     public void startSession(CommandSender sender, Boolean confirmed) {
@@ -196,7 +196,7 @@ public class CivSessions implements Listener {
                 for (String name : areaNames) {
                     String permission = "oseciv.area." + name;
                     if (p.hasPermission(permission)) {
-                        if (!tpPlayer(p, name, true)) {
+                        if (!tpPlayer(p, name, true, true)) {
                             plugin.getLogger().severe("[OSE_Civilisation] No suitable spawn point found, session start is impossible !");
                             return;
                         }
@@ -322,7 +322,7 @@ public class CivSessions implements Listener {
                 Player player = event.getPlayer();
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     tpPlayer(player, name);
-                }, 20L); // 1 seconde après le login
+                }, 20L);
                 return;
             }
         }
@@ -352,13 +352,61 @@ public class CivSessions implements Listener {
             String permission = "oseciv.area." + name;
             if (event.getPlayer().hasPermission(permission)) {
                 Player player = event.getPlayer();
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    tpPlayer(player, name);
-                }, 20L); // 1 seconde après le login
-                return;
-            }
-        }
-        plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
-    }
+                String uuid = player.getUniqueId().toString();
+                int x1 = plugin.getConfig().getInt("areas." + name + ".x1");
+                int z1 = plugin.getConfig().getInt("areas." + name + ".z1");
+                int x2 = plugin.getConfig().getInt("areas." + name + ".x2");
+                int z2 = plugin.getConfig().getInt("areas." + name + ".z2");
 
+                int rx;
+                int rz;
+
+                String configWorld = plugin.getConfig().getString("world");
+
+                plugin.getLogger().info(configWorld);
+
+                Random rand = new Random();
+
+                World world;
+
+                if (configWorld == null || configWorld.trim().isEmpty()) {
+                    world = Bukkit.getWorld("world");
+                } else {
+                    world = Bukkit.getWorld(configWorld);
+                }
+
+                if (world == null) {
+                    plugin.getLogger().severe("[OSE_Civilisation] No world '" + configWorld + "' found !");
+                    return;
+                }
+
+                for (int i = 0; i < 1000; i++) {
+                    rx = Math.min(x1, x2) + rand.nextInt(Math.abs(x1 - x2) + 1);
+                    rz = Math.min(z1, z2) + rand.nextInt(Math.abs(z1 - z2) + 1);
+
+                    Block pos = world.getHighestBlockAt(rx, rz);
+
+                    if (pos.getType() == Material.WATER || pos.getType() == Material.LAVA || pos.getType() == Material.KELP || pos.getType() == Material.TALL_SEAGRASS) {
+                        continue;
+                    } else {
+                        while (pos.isPassable()) {
+                            pos = pos.getRelative(BlockFace.DOWN);
+                        }
+                    }
+
+                    plugin.getLogger().info(String.valueOf(pos.getX()) + "|" + i);
+                    plugin.getLogger().info(String.valueOf(pos.getZ()) + "|" + i);
+
+                    Location loc = new Location(world, rx + 0.5, pos.getY() + 1, rz + 0.5);
+                    event.setRespawnLocation(loc);
+                    List<String> uuidlist = plugin.getConfig().getStringList("teleported-players");
+                    uuidlist.add(uuid);
+                    plugin.getConfig().set("teleported-players", uuidlist);
+                    plugin.saveConfig();
+                    return;
+                }
+            }
+            plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
+        }
+    }
 }

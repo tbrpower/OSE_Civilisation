@@ -18,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -318,7 +319,42 @@ public class CivSessions implements Listener {
         for (String name : areaNames) {
             String permission = "oseciv.area." + name;
             if (event.getPlayer().hasPermission(permission)) {
-                tpPlayer(event.getPlayer(), name);
+                Player player = event.getPlayer();
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    tpPlayer(player, name);
+                }, 20L); // 1 seconde après le login
+                return;
+            }
+        }
+        plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
+    }
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getPlayer().hasPermission("oseciv.bypass")) {
+            return;
+        }
+
+
+        ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
+        if (areasSection == null) {
+            plugin.getLogger().warning("[OSE_Civilisation] No areas config found");
+            return;
+        }
+        Set<String> areaNames = areasSection.getKeys(false);
+
+        if (plugin.getConfig().getStringList("teleported-players").contains(event.getPlayer().getUniqueId().toString())) {
+            plugin.getLogger().info("§7Player " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has already been telported.");
+            return;
+        }
+
+        for (String name : areaNames) {
+            String permission = "oseciv.area." + name;
+            if (event.getPlayer().hasPermission(permission)) {
+                Player player = event.getPlayer();
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    tpPlayer(player, name);
+                }, 20L); // 1 seconde après le login
                 return;
             }
         }

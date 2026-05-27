@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CivBans {
@@ -34,6 +35,15 @@ public class CivBans {
             for (BanEntry<? super PlayerProfile> entry : profileBanList.getEntries()) {
                 PlayerProfile target = (PlayerProfile) entry.getBanTarget();
                 if (!(entry.getSource().isEmpty()) && entry.getSource().equals(banReason)) {
+                    if (plugin.getConfig().getBoolean("session-started")) {
+                        List<String> teleported = plugin.getConfig().getStringList("teleported-players");
+                        if (teleported.contains(target.getId().toString())) {
+                            teleported.remove(target.getId().toString());
+                            plugin.getConfig().set("teleported-players", teleported);
+                            plugin.saveConfig();
+                        }
+
+                    }
                     profileBanList.pardon(target);
 //                    ipBanList.pardon(target.getName());
                     revivedPlayers.add(target.getName());

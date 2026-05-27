@@ -36,7 +36,9 @@ public class CivBans {
                 PlayerProfile target = (PlayerProfile) entry.getBanTarget();
                 if (!(entry.getSource().isEmpty()) && entry.getSource().equals(banReason)) {
                     if (plugin.getConfig().getBoolean("session-started")) {
+
                         List<String> teleported = plugin.getConfig().getStringList("teleported-players");
+
                         if (teleported.contains(target.getId().toString())) {
                             teleported.remove(target.getId().toString());
                             plugin.getConfig().set("teleported-players", teleported);

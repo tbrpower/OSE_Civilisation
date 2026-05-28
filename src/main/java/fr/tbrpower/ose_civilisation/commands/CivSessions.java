@@ -3,7 +3,6 @@ package fr.tbrpower.ose_civilisation.commands;
 import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.apache.maven.model.PluginConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,6 +14,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
@@ -294,8 +294,10 @@ public class CivSessions implements Listener {
         plugin.getLogger().warning("[OSE_Civilisation] User " + event.getPlayer().getName() + "(" + event.getPlayer().getUniqueId() + ") has no area defined !");
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+
+        plugin.getLogger().warning("Player respawning");
         if (event.getPlayer().hasPermission("oseciv.bypass")) {
             return;
         }
@@ -313,8 +315,8 @@ public class CivSessions implements Listener {
             return;
         }
 
-        for (String name : areaNames) {
-            String permission = "oseciv.area." + name;
+        for (String areaName : areaNames) {
+            String permission = "oseciv.area." + areaName;
             if (event.getPlayer().hasPermission(permission)) {
                 Player player = event.getPlayer();
                 String uuid = player.getUniqueId().toString();
@@ -322,7 +324,7 @@ public class CivSessions implements Listener {
                 Location loc = null;
                 int i = 0;
                 while (i < 1000 && loc == null) {
-                     loc = getTpLocation(player, name, i);
+                     loc = getTpLocation(player, areaName, i);
                      i++;
                 }
                 if (loc == null) {
@@ -331,6 +333,19 @@ public class CivSessions implements Listener {
                 }
 
                 event.setRespawnLocation(loc);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    freeze.freeze5s(player);
+
+                    player.getWorld().strikeLightningEffect(player.getLocation());
+
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5 * 20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 120 * 20, 1, true, true, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 30 * 20, 0, false, false, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 480 * 20, 0, true, true, false));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30 * 20, 0, false, false, false));
+
+                    player.sendTitle("§6" + areaName.substring(0, 1).toUpperCase() + areaName.substring(1) + "§r", "§2Bienvenue de retour parmi nous ! §c§lC'est votre dernière chance !§r", 20, 5 * 20, 20 * 20);
+                }, 20L);
 
 
                 List<String> uuidlist = plugin.getConfig().getStringList("teleported-players");

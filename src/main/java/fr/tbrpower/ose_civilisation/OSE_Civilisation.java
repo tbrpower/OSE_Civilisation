@@ -51,7 +51,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         }
     }
 
-    Component messageday1 = (Component) MiniMessage.miniMessage().deserialize("""
+    Component tempDeathMessage = (Component) MiniMessage.miniMessage().deserialize("""
            <red><bold>Vous avez été tué !</bold></red>
                \s
            <#900000><italic>Vous ne pouvez donc plus respawn...</italic></#900000>
@@ -64,7 +64,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
                \s
            \s""");
 
-    Component messageNormal = (Component) MiniMessage.miniMessage().deserialize("""
+    Component permDeathMessage = (Component) MiniMessage.miniMessage().deserialize("""
            <red><bold>Vous avez été tué !</bold></red>
                \s
            <#900000><italic>Vous ne pouvez donc plus respawn.</italic></#900000>
@@ -76,6 +76,19 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
                \s
                \s
            \s""");
+
+    public Component sessionPausedMessage = (Component) MiniMessage.miniMessage().deserialize("""
+            <red><bold>L'événement est en pause !</bold></red>
+            \s
+            \s
+            <white>Revenez demain à 20h !
+            \s
+            Faites une pause pendant ce temps là, allez dormir :)
+            \s
+            </white>
+            \s
+            """
+    );
 
     @Override
     public void onEnable() {
@@ -118,6 +131,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
                 "",
                 "Correct syntax:",
                 "area-name:",
+                "  display-name: ''",
                 "  x1:",
                 "  z1:",
                 "  x2:",
@@ -158,7 +172,7 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
         String playerName = event.getEntity().getName();
         if (event.getEntity().getAddress() == null) return;
 
-        if (tempDeath) {deathSource = BanReasons.TEMP_DEATH.getReason(); message = messageday1;} else {deathSource = BanReasons.PERM_DEATH.getReason(); message = messageNormal;}
+        if (tempDeath) {deathSource = BanReasons.TEMP_DEATH.getReason(); message = tempDeathMessage;} else {deathSource = BanReasons.PERM_DEATH.getReason(); message = permDeathMessage;}
 
         if (! event.getPlayer().hasPermission("oseciv.bypass")) {
 
@@ -188,19 +202,22 @@ public class OSE_Civilisation extends JavaPlugin implements  Listener {
     // BAN CHECK
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        String ip = event.getAddress().getHostAddress();
-        PlayerProfile profile = event.getPlayerProfile();
-        BanList ipBanList = Bukkit.getBanList(BanList.Type.IP);
-        ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
-        BanEntry ipentry = ipBanList.getBanEntry(ip);
-        Component message = messageNormal;
-
-        if (ipentry != null) {
-            if (ipentry.getSource().equals(BanReasons.TEMP_DEATH.getReason())) {message = messageday1;} else if (ipentry.getSource().equals(BanReasons.PERM_DEATH.getReason())) { message = messageNormal;}
-        }
-        if (ipBanList.isBanned(ip)) {
+        Component message = permDeathMessage;
+        if (getConfig().getBoolean("session-paused")) {
+            message = sessionPausedMessage;
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
-        } else if (profileBanList.isBanned(profile)) {
+            return;
+        }
+
+        PlayerProfile profile = event.getPlayerProfile();
+        ProfileBanList profileBanList = (ProfileBanList) Bukkit.getBanList(BanList.Type.PROFILE);
+        BanEntry<PlayerProfile> profileBanEntry = profileBanList.getBanEntry(profile);
+
+
+        if (profileBanEntry != null) {
+            if (profileBanEntry.getSource().equals(BanReasons.TEMP_DEATH.getReason())) {message = tempDeathMessage;} else if (profileBanEntry.getSource().equals(BanReasons.PERM_DEATH.getReason())) { message = permDeathMessage;}
+        }
+         if (profileBanList.isBanned(profile)) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
         }
     }

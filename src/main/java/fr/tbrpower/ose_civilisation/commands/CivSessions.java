@@ -21,23 +21,13 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class CivSessions implements Listener {
 
-    Component sessionPausedMessage = (Component) MiniMessage.miniMessage().deserialize("""
-            <red><bold>L'événement est en pause !</bold></red>
-            \s
-            \s
-            <white>Revenez demain à 20h !
-            \s
-            Faites une pause pendant ce temps là, allez toucher de l'herbe :)
-            \s
-            </white>
-            \s
-            """
-    );
+
 
     private final OSE_Civilisation plugin;
 
@@ -70,6 +60,8 @@ public class CivSessions implements Listener {
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         plugin.getLogger().info("[OSE_Civilisation]" + player.getName() + "(" + player.getUniqueId().toString() + ") teleported to " + finalLoc.getBlockX() +' '+ finalLoc.getBlockY() +' '+ finalLoc.getBlockZ());
 
+                        String areaDisplayName = plugin.getConfig().getString("areas."+area+".display-name");
+
                         freeze.freeze5s(player);
 
                         player.getWorld().strikeLightningEffect(player.getLocation());
@@ -80,7 +72,7 @@ public class CivSessions implements Listener {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 480 * 20, 0, true, true, false));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30 * 20, 0, false, false, false));
 
-                        player.sendTitle("§6" + area.substring(0, 1).toUpperCase() + area.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5 * 20, 20 * 20);
+                        player.sendTitle("§6" + areaDisplayName.substring(0, 1).toUpperCase() + areaDisplayName.substring(1) + "§r", "§2Bienvenue dans l'événement Civilisation ! §aBonne chance o7 !§r", 20, 5 * 20, 20 * 20);
                         if (!start) {
                             List<String> uuidlist = plugin.getConfig().getStringList("teleported-players");
                             uuidlist.add(uuid);
@@ -241,7 +233,7 @@ public class CivSessions implements Listener {
 
                     new ArrayList<>(Bukkit.getOnlinePlayers()).stream()
                         .filter(p -> !p.hasPermission("oseciv.bypass"))
-                        .forEach(p -> p.kick(sessionPausedMessage, PlayerKickEvent.Cause.PLUGIN));
+                        .forEach(p -> p.kick(plugin.sessionPausedMessage, PlayerKickEvent.Cause.PLUGIN));
 
                     sender.sendMessage("§a§lSession paused ! §aAll players were kicked !§r");
                 }
@@ -264,10 +256,6 @@ public class CivSessions implements Listener {
             return;
         }
 
-        if (plugin.getConfig().getBoolean("session-paused")) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, sessionPausedMessage);
-            return;
-        }
 
         ConfigurationSection areasSection = plugin.getConfig().getConfigurationSection("areas");
         if (areasSection == null) {
@@ -296,6 +284,10 @@ public class CivSessions implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+
+        if (plugin.getConfig().getBoolean("session-started")) {
+           return;
+        }
 
         plugin.getLogger().warning("Player respawning");
         if (event.getPlayer().hasPermission("oseciv.bypass")) {

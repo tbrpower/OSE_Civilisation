@@ -52,6 +52,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
             case "newarea" -> civAreas.newArea(sender, args);
             case "rmarea" -> civAreas.removeArea(sender, args);
             case "setpos" -> civAreas.setpos(sender, args);
+            case "areadisplayname" -> civAreas.areaDisplayName(sender, args);
 
             // CivSessions
             case "startsession" -> civSessions.startSession(sender);
@@ -82,11 +83,18 @@ public class CivCommands implements CommandExecutor, TabCompleter {
 
 
 
-        if (args.length == 2 && (args[0].equalsIgnoreCase("rmarea") || args[0].equalsIgnoreCase("setpos"))) {
+        if (args.length == 2 && (args[0].equalsIgnoreCase("rmarea") || args[0].equalsIgnoreCase("setpos") || args[0].equalsIgnoreCase("areadisplayname"))) {
             return Objects.requireNonNull(plugin.getConfig().getConfigurationSection("areas")).getKeys(false).stream()
                     .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
                     .toList();
         }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("setpos")) {
+            return Stream.of("pos1", "pos2")
+                    .filter(s -> s.startsWith(args[2].toLowerCase()))
+                    .toList();
+        }
+
         return List.of();
     }
 }

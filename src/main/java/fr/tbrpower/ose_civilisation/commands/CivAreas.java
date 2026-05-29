@@ -13,7 +13,7 @@ public class CivAreas {
 
     public void newArea(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            sender.sendMessage("§cMissing name : action failed.§r");
+            sender.sendMessage("§cCorrect syntax : /civ newarea <name> [display-name>]§r");
             return;
         }
 
@@ -24,9 +24,15 @@ public class CivAreas {
             return;
         }
 
-        if (args.length > 2) {
+        if (args.length > 3) {
             sender.sendMessage("§cWrong syntax : /civ newarea <name>");
             return;
+        }
+
+        if (args.length == 3) {
+            plugin.getConfig().set("areas."+name+".display-name", args[2]);
+        } else {
+            plugin.getConfig().set("areas."+name+".display-name", args[1]);
         }
 
         plugin.getConfig().set("areas."+name+".x1", 0);
@@ -142,6 +148,22 @@ public class CivAreas {
         plugin.saveConfig();
 
         sender.sendMessage("§aCorner §e"+ corner +"§a of area §d"+ name + "§a set to coordinates §e " + x + ' ' + z + "§r");
+
+    }
+
+    public void areaDisplayName(CommandSender sender, String[] args) {
+        if (args.length != 3) {
+            sender.sendMessage("§cCorrect syntax : /civ areadisplayname <area> <newname>");
+            return;
+        }
+
+        String area = args [1];
+        String newname = args[2];
+
+        plugin.getConfig().set("areas."+area+".display-name", newname);
+        plugin.saveConfig();
+
+        sender.sendMessage("§eArea §d"+area+"§e's display name has been renamed to §d"+newname);
 
     }
 }

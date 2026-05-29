@@ -17,6 +17,7 @@ session-paused : false
 # Players must have oseciv.area.<area-name> perm for the tp to work.
 # Correct syntax :
 # area-name :
+#   display-name : ''
 #   x1 :
 #   z1 :
 #   x2 :

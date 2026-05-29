@@ -35,7 +35,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if (args.length == 0) {
-            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|pardonperm|listtemp|listperm|toggletempdeath|info|newarea|rmarea|setpos|startsession|cancelsession|reload|confirm|cancel>");
+            sender.sendMessage("§cInvalid syntax. Correct use : /civ <pardonall|pardonperm|listtemp|listperm|toggletempdeath|info|newarea|rmarea|setpos|areadisplayname|startsession|cancelsession|reload|confirm|cancel>");
             return true;
         }
 
@@ -76,7 +76,7 @@ public class CivCommands implements CommandExecutor, TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Stream.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggletempdeath", "info", "newarea", "rmarea", "setpos", "startsession", "cancelsession", "reload", "confirm", "cancel", "pausesession")
+            return Stream.of("pardontemp", "pardonperm", "listtemp", "listperm", "toggletempdeath", "info", "newarea", "rmarea", "setpos", "areadisplayname", "startsession", "cancelsession", "reload", "confirm", "cancel", "pausesession")
                     .filter(s -> s.startsWith(args[0].toLowerCase()))
                     .toList();
         }

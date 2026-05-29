@@ -5,6 +5,8 @@ import fr.tbrpower.ose_civilisation.OSE_Civilisation;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+
 public class CivAreas {
     private final OSE_Civilisation plugin;
     private final CivUtils civUtils;
@@ -152,13 +154,13 @@ public class CivAreas {
     }
 
     public void areaDisplayName(CommandSender sender, String[] args) {
-        if (args.length != 3) {
+        if (args.length < 3) {
             sender.sendMessage("§cCorrect syntax : /civ areadisplayname <area> <newname>");
             return;
         }
 
         String area = args [1];
-        String newname = args[2];
+        String newname = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
 
         plugin.getConfig().set("areas."+area+".display-name", newname);
         plugin.saveConfig();
